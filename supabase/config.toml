@@ -1,1 +1,7 @@
 project_id = "cukmlcjerbapfstvodll"
+
+[functions.create-user]
+verify_jwt = true
+
+[functions.seed-admin]
+verify_jwt = false
