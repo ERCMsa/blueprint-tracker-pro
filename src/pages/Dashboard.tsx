@@ -1,0 +1,93 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import ProtectedLayout from "@/components/ProtectedLayout";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { FolderKanban, CheckCircle2, Clock, AlertTriangle, Plus, Users } from "lucide-react";
+import { isOverdue } from "@/lib/projectUtils";
+
+type ProjectRow = { id: string; deadline: string };
+type TaskRow = { project_id: string; is_done: boolean };
+
+export default function Dashboard() {
+  const [projects, setProjects] = useState<ProjectRow[]>([]);
+  const [tasks, setTasks] = useState<TaskRow[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const [{ data: p }, { data: t }] = await Promise.all([
+        supabase.from("projects").select("id, deadline"),
+        supabase.from("project_tasks").select("project_id, is_done"),
+      ]);
+      setProjects(p ?? []);
+      setTasks(t ?? []);
+    })();
+  }, []);
+
+  const total = projects.length;
+  const taskByProj = new Map<string, TaskRow[]>();
+  tasks.forEach((t) => {
+    const arr = taskByProj.get(t.project_id) ?? [];
+    arr.push(t);
+    taskByProj.set(t.project_id, arr);
+  });
+  const completed = projects.filter((p) => {
+    const ts = taskByProj.get(p.id) ?? [];
+    return ts.length > 0 && ts.every((t) => t.is_done);
+  }).length;
+  const overdue = projects.filter((p) => isOverdue(p.deadline) && !(taskByProj.get(p.id) ?? []).every((t) => t.is_done)).length;
+  const inProgress = total - completed;
+
+  const stats = [
+    { label: "Total projets", value: total, icon: FolderKanban, color: "text-primary", bg: "bg-primary/10" },
+    { label: "En cours", value: inProgress, icon: Clock, color: "text-warning", bg: "bg-warning/10" },
+    { label: "Terminés", value: completed, icon: CheckCircle2, color: "text-success", bg: "bg-success/10" },
+    { label: "En retard", value: overdue, icon: AlertTriangle, color: "text-destructive", bg: "bg-destructive/10" },
+  ];
+
+  return (
+    <ProtectedLayout requireBoss>
+      <div className="space-y-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Tableau de bord</h1>
+            <p className="text-muted-foreground mt-1">Vue d'ensemble de vos projets d'ingénierie</p>
+          </div>
+          <div className="flex gap-2">
+            <Button asChild variant="outline"><Link to="/users"><Users className="h-4 w-4 mr-2" />Utilisateurs</Link></Button>
+            <Button asChild><Link to="/projects"><Plus className="h-4 w-4 mr-2" />Nouveau projet</Link></Button>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {stats.map((s) => (
+            <Card key={s.label} className="p-6 bg-[image:var(--gradient-card)] shadow-[var(--shadow-card)]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-muted-foreground">{s.label}</div>
+                  <div className="text-3xl font-bold mt-2">{s.value}</div>
+                </div>
+                <div className={`h-12 w-12 rounded-lg ${s.bg} grid place-items-center`}>
+                  <s.icon className={`h-6 w-6 ${s.color}`} />
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        <Card className="p-6 bg-[image:var(--gradient-hero)] text-primary-foreground">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold">Gérez tous vos projets</h2>
+              <p className="opacity-80 text-sm mt-1">Suivez les plans, achats et finitions en temps réel</p>
+            </div>
+            <Button asChild variant="secondary" size="lg">
+              <Link to="/projects">Voir tous les projets</Link>
+            </Button>
+          </div>
+        </Card>
+      </div>
+    </ProtectedLayout>
+  );
+}
