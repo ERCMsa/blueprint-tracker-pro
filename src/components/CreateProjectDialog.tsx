@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,6 @@ import { CalendarIcon, Plus, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { PROJECT_TYPES } from "@/lib/projectUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -18,21 +17,35 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
-  const [engineer, setEngineer] = useState("");
-  const [type, setType] = useState<string>("Structure");
+  const [reference, setReference] = useState("");
+  const [type, setType] = useState<string>("");
   const [deadline, setDeadline] = useState<Date>();
   const [responsable, setResponsable] = useState("");
+  const [users, setUsers] = useState<{ id: string; full_name: string }[]>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    supabase
+      .from("profiles")
+      .select("id, full_name")
+      .order("full_name")
+      .then(({ data, error }) => {
+        if (error) { toast.error(error.message); return; }
+        setUsers(data || []);
+      });
+  }, [open]);
 
   const reset = () => {
-    setName(""); setEngineer(""); setType("Structure"); setDeadline(undefined); setResponsable("");
+    setName(""); setReference(""); setType(""); setDeadline(undefined); setResponsable("");
   };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!deadline) { toast.error("Sélectionnez une date limite"); return; }
+    if (!responsable) { toast.error("Sélectionnez un responsable"); return; }
     setLoading(true);
     const { error } = await supabase.from("projects").insert({
-      name, engineer_name: engineer, type, deadline: deadline.toISOString().slice(0, 10),
+      name, engineer_name: reference, type, deadline: deadline.toISOString().slice(0, 10),
       responsable, created_by: userId,
     });
     setLoading(false);
@@ -58,18 +71,13 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
             <Input value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
           <div className="space-y-2">
-            <Label>Nom de l'ingénieur</Label>
-            <Input value={engineer} onChange={(e) => setEngineer(e.target.value)} required />
+            <Label>Référence</Label>
+            <Input value={reference} onChange={(e) => setReference(e.target.value)} required />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Type</Label>
-              <Select value={type} onValueChange={setType}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {PROJECT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Input value={type} onChange={(e) => setType(e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label>Date limite</Label>
@@ -87,9 +95,15 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Responsable (nom complet)</Label>
-            <Input value={responsable} onChange={(e) => setResponsable(e.target.value)} required placeholder="Nom complet du responsable" />
-            <p className="text-xs text-muted-foreground">Doit correspondre au nom complet de l'utilisateur pour qu'il puisse cocher les tâches.</p>
+            <Label>Responsable</Label>
+            <Select value={responsable} onValueChange={setResponsable}>
+              <SelectTrigger><SelectValue placeholder="Sélectionner un utilisateur" /></SelectTrigger>
+              <SelectContent>
+                {users.map((u) => (
+                  <SelectItem key={u.id} value={u.full_name}>{u.full_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
