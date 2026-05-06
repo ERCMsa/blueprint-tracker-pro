@@ -28,20 +28,6 @@ type Comment = { id: string; project_id: string; user_id: string; content: strin
 
 export default function ProjectCard({
   project,
-  tasks,
-  profile,
-  profilesById,
-}: {
-  project: Project;
-  tasks: Task[];
-  profile: Profile;
-  profilesById: Map<string, { full_name: string }>;
-}) {
-type Task = { id: string; project_id: string; task_key: string; is_done: boolean; done_at: string | null; done_by: string | null };
-type Comment = { id: string; project_id: string; user_id: string; content: string; created_at: string };
-
-export default function ProjectCard({
-  project,
   tasks: tasksProp,
   profile,
   profilesById,
