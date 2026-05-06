@@ -49,7 +49,7 @@ export default function AppHeader({ profile }: { profile: Profile }) {
         <div className="flex items-center gap-3">
           <div className="text-right hidden md:block">
             <div className="text-sm font-medium">{profile.full_name}</div>
-            <div className="text-xs text-muted-foreground capitalize">{profile.role === "boss" ? "Responsable" : "Ingénieur"}</div>
+            <div className="text-xs text-muted-foreground capitalize">{profile.role === "boss" ? "Responsable" : profile.role === "viewer" ? "Observateur" : "Ingénieur"}</div>
           </div>
           <Button variant="outline" size="sm" onClick={logout}>
             <LogOut className="h-4 w-4" />
