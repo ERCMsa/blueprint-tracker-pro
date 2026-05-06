@@ -6,7 +6,7 @@ export type Profile = {
   id: string;
   username: string;
   full_name: string;
-  role: "boss" | "engineer";
+  role: "boss" | "engineer" | "viewer";
 };
 
 export function useAuth() {
