@@ -37,6 +37,24 @@ export default function ProjectCard({
   profile: Profile;
   profilesById: Map<string, { full_name: string }>;
 }) {
+type Task = { id: string; project_id: string; task_key: string; is_done: boolean; done_at: string | null; done_by: string | null };
+type Comment = { id: string; project_id: string; user_id: string; content: string; created_at: string };
+
+export default function ProjectCard({
+  project,
+  tasks: tasksProp,
+  profile,
+  profilesById,
+}: {
+  project: Project;
+  tasks: Task[];
+  profile: Profile;
+  profilesById: Map<string, { full_name: string }>;
+}) {
+  const [localTasks, setLocalTasks] = useState<Task[]>(tasksProp);
+  useEffect(() => { setLocalTasks(tasksProp); }, [tasksProp]);
+  const tasks = localTasks;
+
   const overdue = isOverdue(project.deadline);
   const doneCount = tasks.filter((t) => t.is_done).length;
   const allDone = tasks.length > 0 && doneCount === tasks.length;
@@ -83,11 +101,16 @@ export default function ProjectCard({
 
   const toggleTask = async (task: Task) => {
     if (task.is_done || !canCheck) return;
+    const optimistic = { ...task, is_done: true, done_at: new Date().toISOString(), done_by: profile.id };
+    setLocalTasks((ts) => ts.map((t) => (t.id === task.id ? optimistic : t)));
     const { error } = await supabase
       .from("project_tasks")
-      .update({ is_done: true, done_at: new Date().toISOString(), done_by: profile.id })
+      .update({ is_done: true, done_at: optimistic.done_at, done_by: profile.id })
       .eq("id", task.id);
-    if (error) toast.error("Action non autorisée");
+    if (error) {
+      setLocalTasks((ts) => ts.map((t) => (t.id === task.id ? task : t)));
+      toast.error("Action non autorisée");
+    }
   };
 
   const submitComment = async () => {
