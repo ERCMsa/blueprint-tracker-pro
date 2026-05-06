@@ -1,0 +1,3 @@
+
+ALTER TABLE public.project_tasks REPLICA IDENTITY FULL;
+ALTER TABLE public.comments REPLICA IDENTITY FULL;
