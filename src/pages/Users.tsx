@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { UserPlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-type Profile = { id: string; username: string; full_name: string; role: "boss" | "engineer"; created_at: string };
+type Profile = { id: string; username: string; full_name: string; role: "boss" | "engineer" | "viewer"; created_at: string };
 
 export default function Users() {
   const [users, setUsers] = useState<Profile[]>([]);
@@ -22,7 +22,7 @@ export default function Users() {
 
   const [username, setUsername] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<"boss" | "engineer">("engineer");
+  const [role, setRole] = useState<"boss" | "engineer" | "viewer">("engineer");
   const [password, setPassword] = useState("");
 
   const load = async () => {
@@ -81,6 +81,7 @@ export default function Users() {
                       <SelectContent>
                         <SelectItem value="engineer">Ingénieur</SelectItem>
                         <SelectItem value="boss">Responsable</SelectItem>
+                        <SelectItem value="viewer">Observateur</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -126,7 +127,7 @@ export default function Users() {
                   <TableCell className="font-mono text-sm">{u.username}</TableCell>
                   <TableCell>
                     <Badge variant={u.role === "boss" ? "default" : "secondary"}>
-                      {u.role === "boss" ? "Responsable" : "Ingénieur"}
+                      {u.role === "boss" ? "Responsable" : u.role === "viewer" ? "Observateur" : "Ingénieur"}
                     </Badge>
                   </TableCell>
                 </TableRow>
