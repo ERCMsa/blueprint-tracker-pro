@@ -164,41 +164,24 @@ export default function ProjectCard({
           {TASK_KEYS.map((key) => {
             const t = taskMap.get(key);
             if (!t) return null;
-            const invalidated = !!t.invalidated_at;
-            const disabled = t.is_done || !canCheck || isViewer || invalidated;
+            const disabled = !canCheck || isViewer;
             return (
               <div key={key} className="flex items-start gap-3 text-sm">
-                {invalidated ? (
-                  <Ban className="h-4 w-4 mt-0.5 text-destructive shrink-0" />
-                ) : (
-                  <Checkbox
-                    checked={t.is_done}
-                    disabled={disabled}
-                    onCheckedChange={() => toggleTask(t)}
-                    className={cn("mt-0.5", t.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
-                  />
-                )}
+                <Checkbox
+                  checked={t.is_done}
+                  disabled={disabled}
+                  onCheckedChange={() => toggleTask(t)}
+                  className={cn("mt-0.5", t.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
+                />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={cn("leading-snug", t.is_done && !invalidated && "line-through text-muted-foreground", invalidated && "line-through text-muted-foreground")}>
-                      {TASK_LABELS[key]}
-                    </span>
-                    {invalidated && <Badge variant="destructive" className="h-5 px-1.5 text-[10px]">Invalidé</Badge>}
-                  </div>
-                  {t.is_done && !invalidated && t.done_at && (
+                  <span className={cn("leading-snug", t.is_done && "line-through text-muted-foreground")}>
+                    {TASK_LABELS[key]}
+                  </span>
+                  {t.is_done && t.done_at && (
                     <div className="text-xs text-success mt-0.5">✓ Terminé le {formatDateTime(t.done_at)}</div>
                   )}
-                  {invalidated && (
-                    <div className="text-xs text-destructive mt-0.5">
-                      Invalidé le {formatDateTime(t.invalidated_at)}
-                      {t.invalidation_reason && <span className="text-muted-foreground"> — {t.invalidation_reason}</span>}
-                    </div>
-                  )}
                 </div>
-                {!canCheck && !isViewer && !t.is_done && !invalidated && <Lock className="h-3.5 w-3.5 text-muted-foreground mt-1" />}
-                {canInvalidate && !invalidated && (
-                  <InvalidateButton task={t} userId={profile.id} onLocal={(updated) => setLocalTasks((ts) => ts.map((x) => x.id === updated.id ? updated : x))} />
-                )}
+                {!canCheck && !isViewer && !t.is_done && <Lock className="h-3.5 w-3.5 text-muted-foreground mt-1" />}
               </div>
             );
           })}
