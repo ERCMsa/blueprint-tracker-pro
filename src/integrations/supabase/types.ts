@@ -134,7 +134,7 @@ export type Database = {
           created_by: string | null
           date_impression_plans: string | null
           date_validation_projet: string | null
-          deadline: string
+          deadline: string | null
           engineer_name: string
           id: string
           name: string
@@ -146,7 +146,7 @@ export type Database = {
           created_by?: string | null
           date_impression_plans?: string | null
           date_validation_projet?: string | null
-          deadline: string
+          deadline?: string | null
           engineer_name: string
           id?: string
           name: string
@@ -158,7 +158,7 @@ export type Database = {
           created_by?: string | null
           date_impression_plans?: string | null
           date_validation_projet?: string | null
-          deadline?: string
+          deadline?: string | null
           engineer_name?: string
           id?: string
           name?: string

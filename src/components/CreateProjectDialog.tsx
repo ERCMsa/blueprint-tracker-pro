@@ -35,7 +35,6 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
   const [name, setName] = useState("");
   const [reference, setReference] = useState("");
   const [type, setType] = useState<string>("");
-  const [deadline, setDeadline] = useState<Date>();
   const [dateValidation, setDateValidation] = useState<Date>();
   const [dateImpression, setDateImpression] = useState<Date>();
   const [responsable, setResponsable] = useState("");
@@ -54,13 +53,12 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
   }, [open]);
 
   const reset = () => {
-    setName(""); setReference(""); setType(""); setDeadline(undefined); setResponsable("");
+    setName(""); setReference(""); setType(""); setResponsable("");
     setDateValidation(undefined); setDateImpression(undefined);
   };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!deadline) { toast.error("Sélectionnez une date limite"); return; }
     if (!dateValidation) { toast.error("Sélectionnez la date de validation du projet"); return; }
     if (!dateImpression) { toast.error("Sélectionnez la date d'impression des plans"); return; }
     if (!responsable) { toast.error("Sélectionnez un responsable"); return; }
@@ -70,7 +68,7 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
 
     setLoading(true);
     const { error } = await supabase.from("projects").insert({
-      name, engineer_name: reference, type, deadline: deadline.toISOString().slice(0, 10),
+      name, engineer_name: reference, type,
       responsable, created_by: userId,
       date_validation_projet: dateValidation.toISOString().slice(0, 10),
       date_impression_plans: dateImpression.toISOString().slice(0, 10),
@@ -101,15 +99,9 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
             <Label>Référence</Label>
             <Input value={reference} onChange={(e) => setReference(e.target.value)} required />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Type</Label>
-              <Input value={type} onChange={(e) => setType(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-              <Label>Date limite</Label>
-              <DateField value={deadline} onChange={setDeadline} />
-            </div>
+          <div className="space-y-2">
+            <Label>Type</Label>
+            <Input value={type} onChange={(e) => setType(e.target.value)} required />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

@@ -20,7 +20,7 @@ export type Project = {
   name: string;
   engineer_name: string;
   type: string;
-  deadline: string;
+  deadline: string | null;
   responsable: string;
   created_at: string;
   date_validation_projet: string | null;
@@ -49,7 +49,7 @@ export default function ProjectCard({
   useEffect(() => { setLocalTasks(tasksProp); }, [tasksProp]);
   const tasks = localTasks;
 
-  const overdue = isOverdue(project.deadline);
+  const overdue = false;
   const isResponsable = profile.full_name === project.responsable;
   const doneCount = tasks.filter((t) => t.is_done).length;
   const allDone = tasks.length > 0 && doneCount === tasks.length;
@@ -249,7 +249,6 @@ function DatesPopover({ project, overdue }: { project: Project; overdue: boolean
     { icon: CalendarPlus, label: "Date de création", value: project.created_at },
     { icon: FileCheck, label: "Date de validation", value: project.date_validation_projet },
     { icon: Printer, label: "Date d'impression des plans", value: project.date_impression_plans },
-    { icon: CalendarDays, label: "Date limite", value: project.deadline },
   ];
   return (
     <Popover>
