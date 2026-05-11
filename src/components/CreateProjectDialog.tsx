@@ -53,13 +53,12 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
   }, [open]);
 
   const reset = () => {
-    setName(""); setReference(""); setType(""); setDeadline(undefined); setResponsable("");
+    setName(""); setReference(""); setType(""); setResponsable("");
     setDateValidation(undefined); setDateImpression(undefined);
   };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!deadline) { toast.error("Sélectionnez une date limite"); return; }
     if (!dateValidation) { toast.error("Sélectionnez la date de validation du projet"); return; }
     if (!dateImpression) { toast.error("Sélectionnez la date d'impression des plans"); return; }
     if (!responsable) { toast.error("Sélectionnez un responsable"); return; }
@@ -69,7 +68,7 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
 
     setLoading(true);
     const { error } = await supabase.from("projects").insert({
-      name, engineer_name: reference, type, deadline: deadline.toISOString().slice(0, 10),
+      name, engineer_name: reference, type,
       responsable, created_by: userId,
       date_validation_projet: dateValidation.toISOString().slice(0, 10),
       date_impression_plans: dateImpression.toISOString().slice(0, 10),
