@@ -49,7 +49,7 @@ export default function ProjectCard({
   useEffect(() => { setLocalTasks(tasksProp); }, [tasksProp]);
   const tasks = localTasks;
 
-  const overdue = isOverdue(project.deadline);
+  const overdue = false;
   const isResponsable = profile.full_name === project.responsable;
   const doneCount = tasks.filter((t) => t.is_done).length;
   const allDone = tasks.length > 0 && doneCount === tasks.length;
