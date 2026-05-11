@@ -6,7 +6,7 @@ import CreateProjectDialog from "@/components/CreateProjectDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2, FolderOpen } from "lucide-react";
 
-type Task = { id: string; project_id: string; task_key: string; is_done: boolean; done_at: string | null; done_by: string | null };
+type Task = { id: string; project_id: string; task_key: string; is_done: boolean; done_at: string | null; done_by: string | null; invalidated_by: string | null; invalidated_at: string | null; invalidation_reason: string | null };
 
 export default function Projects() {
   const { profile } = useAuth();
