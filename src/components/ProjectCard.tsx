@@ -54,7 +54,7 @@ export default function ProjectCard({
   const doneCount = tasks.filter((t) => t.is_done).length;
   const allDone = tasks.length > 0 && doneCount === tasks.length;
   const isViewer = profile.role === "viewer";
-  const canCheck = profile.role === "boss" || isResponsable;
+  const canCheck = isResponsable;
   const progressPct = Math.round((doneCount / 5) * 100);
 
   const [comments, setComments] = useState<Comment[]>([]);
