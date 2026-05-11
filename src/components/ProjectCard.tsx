@@ -52,11 +52,10 @@ export default function ProjectCard({
 
   const overdue = isOverdue(project.deadline);
   const isResponsable = profile.full_name === project.responsable;
-  const doneCount = tasks.filter((t) => t.is_done && !t.invalidated_at).length;
+  const doneCount = tasks.filter((t) => t.is_done).length;
   const allDone = tasks.length > 0 && doneCount === tasks.length;
   const isViewer = profile.role === "viewer";
   const canCheck = profile.role === "boss" || isResponsable;
-  const canInvalidate = profile.role === "boss" || isResponsable;
   const progressPct = Math.round((doneCount / 5) * 100);
 
   const [comments, setComments] = useState<Comment[]>([]);
