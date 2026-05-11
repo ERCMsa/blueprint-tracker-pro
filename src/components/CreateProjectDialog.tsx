@@ -35,7 +35,6 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
   const [name, setName] = useState("");
   const [reference, setReference] = useState("");
   const [type, setType] = useState<string>("");
-  const [deadline, setDeadline] = useState<Date>();
   const [dateValidation, setDateValidation] = useState<Date>();
   const [dateImpression, setDateImpression] = useState<Date>();
   const [responsable, setResponsable] = useState("");
