@@ -13,6 +13,22 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+function DateField({ value, onChange, placeholder = "Choisir" }: { value?: Date; onChange: (d?: Date) => void; placeholder?: string }) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !value && "text-muted-foreground")}>
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {value ? format(value, "dd/MM/yyyy") : placeholder}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar mode="single" selected={value} onSelect={onChange} initialFocus locale={fr} className={cn("p-3 pointer-events-auto")} />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export default function CreateProjectDialog({ onCreated, userId }: { onCreated: () => void; userId: string }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,6 +36,8 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
   const [reference, setReference] = useState("");
   const [type, setType] = useState<string>("");
   const [deadline, setDeadline] = useState<Date>();
+  const [dateValidation, setDateValidation] = useState<Date>();
+  const [dateImpression, setDateImpression] = useState<Date>();
   const [responsable, setResponsable] = useState("");
   const [users, setUsers] = useState<{ id: string; full_name: string }[]>([]);
 
@@ -37,16 +55,25 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
 
   const reset = () => {
     setName(""); setReference(""); setType(""); setDeadline(undefined); setResponsable("");
+    setDateValidation(undefined); setDateImpression(undefined);
   };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!deadline) { toast.error("Sélectionnez une date limite"); return; }
+    if (!dateValidation) { toast.error("Sélectionnez la date de validation du projet"); return; }
+    if (!dateImpression) { toast.error("Sélectionnez la date d'impression des plans"); return; }
     if (!responsable) { toast.error("Sélectionnez un responsable"); return; }
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    if (dateValidation < today) { toast.error("La date de validation doit être après la date de création"); return; }
+    if (dateImpression < today) { toast.error("La date d'impression doit être après la date de création"); return; }
+
     setLoading(true);
     const { error } = await supabase.from("projects").insert({
       name, engineer_name: reference, type, deadline: deadline.toISOString().slice(0, 10),
       responsable, created_by: userId,
+      date_validation_projet: dateValidation.toISOString().slice(0, 10),
+      date_impression_plans: dateImpression.toISOString().slice(0, 10),
     });
     setLoading(false);
     if (error) { toast.error(error.message); return; }
@@ -61,7 +88,7 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
       <DialogTrigger asChild>
         <Button><Plus className="h-4 w-4 mr-2" />Nouveau projet</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Créer un nouveau projet</DialogTitle>
         </DialogHeader>
@@ -81,17 +108,17 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
             </div>
             <div className="space-y-2">
               <Label>Date limite</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !deadline && "text-muted-foreground")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {deadline ? format(deadline, "dd/MM/yyyy") : "Choisir"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={deadline} onSelect={setDeadline} initialFocus locale={fr} className={cn("p-3 pointer-events-auto")} />
-                </PopoverContent>
-              </Popover>
+              <DateField value={deadline} onChange={setDeadline} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Date de validation du projet</Label>
+              <DateField value={dateValidation} onChange={setDateValidation} />
+            </div>
+            <div className="space-y-2">
+              <Label>Date d'impression des plans</Label>
+              <DateField value={dateImpression} onChange={setDateImpression} />
             </div>
           </div>
           <div className="space-y-2">
