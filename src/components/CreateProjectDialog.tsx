@@ -99,15 +99,9 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
             <Label>Référence</Label>
             <Input value={reference} onChange={(e) => setReference(e.target.value)} required />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Type</Label>
-              <Input value={type} onChange={(e) => setType(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-              <Label>Date limite</Label>
-              <DateField value={deadline} onChange={setDeadline} />
-            </div>
+          <div className="space-y-2">
+            <Label>Type</Label>
+            <Input value={type} onChange={(e) => setType(e.target.value)} required />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
