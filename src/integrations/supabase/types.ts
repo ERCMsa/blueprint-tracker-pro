@@ -82,6 +82,9 @@ export type Database = {
           done_at: string | null
           done_by: string | null
           id: string
+          invalidated_at: string | null
+          invalidated_by: string | null
+          invalidation_reason: string | null
           is_done: boolean
           project_id: string
           task_key: string
@@ -90,6 +93,9 @@ export type Database = {
           done_at?: string | null
           done_by?: string | null
           id?: string
+          invalidated_at?: string | null
+          invalidated_by?: string | null
+          invalidation_reason?: string | null
           is_done?: boolean
           project_id: string
           task_key: string
@@ -98,6 +104,9 @@ export type Database = {
           done_at?: string | null
           done_by?: string | null
           id?: string
+          invalidated_at?: string | null
+          invalidated_by?: string | null
+          invalidation_reason?: string | null
           is_done?: boolean
           project_id?: string
           task_key?: string
@@ -123,6 +132,8 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          date_impression_plans: string | null
+          date_validation_projet: string | null
           deadline: string
           engineer_name: string
           id: string
@@ -133,6 +144,8 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          date_impression_plans?: string | null
+          date_validation_projet?: string | null
           deadline: string
           engineer_name: string
           id?: string
@@ -143,6 +156,8 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          date_impression_plans?: string | null
+          date_validation_projet?: string | null
           deadline?: string
           engineer_name?: string
           id?: string
