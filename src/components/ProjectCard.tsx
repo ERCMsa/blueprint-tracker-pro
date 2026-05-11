@@ -162,12 +162,16 @@ export default function ProjectCard({
             const disabled = t.is_done || !canCheck || isViewer || invalidated;
             return (
               <div key={key} className="flex items-start gap-3 text-sm">
-                <Checkbox
-                  checked={t.is_done && !invalidated}
-                  disabled={disabled}
-                  onCheckedChange={() => toggleTask(t)}
-                  className={cn("mt-0.5", t.is_done && !invalidated && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
-                />
+                {invalidated ? (
+                  <Ban className="h-4 w-4 mt-0.5 text-destructive shrink-0" />
+                ) : (
+                  <Checkbox
+                    checked={t.is_done}
+                    disabled={disabled}
+                    onCheckedChange={() => toggleTask(t)}
+                    className={cn("mt-0.5", t.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
+                  />
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className={cn("leading-snug", t.is_done && !invalidated && "line-through text-muted-foreground", invalidated && "line-through text-muted-foreground")}>
