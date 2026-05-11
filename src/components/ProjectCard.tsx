@@ -20,7 +20,7 @@ export type Project = {
   name: string;
   engineer_name: string;
   type: string;
-  deadline: string;
+  deadline: string | null;
   responsable: string;
   created_at: string;
   date_validation_projet: string | null;
