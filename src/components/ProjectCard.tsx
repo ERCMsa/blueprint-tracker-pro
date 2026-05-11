@@ -163,14 +163,12 @@ export default function ProjectCard({
           {TASK_KEYS.map((key) => {
             const t = taskMap.get(key);
             if (!t) return null;
-            const disabled = !canCheck || isViewer;
             return (
               <div key={key} className="flex items-start gap-3 text-sm">
                 <Checkbox
                   checked={t.is_done}
-                  disabled={disabled}
                   onCheckedChange={() => toggleTask(t)}
-                  className={cn("mt-0.5", t.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
+                  className={cn("mt-0.5", !canCheck && "cursor-not-allowed", t.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
                 />
                 <div className="flex-1 min-w-0">
                   <span className={cn("leading-snug", t.is_done && "line-through text-muted-foreground")}>
@@ -180,7 +178,7 @@ export default function ProjectCard({
                     <div className="text-xs text-success mt-0.5">✓ Terminé le {formatDateTime(t.done_at)}</div>
                   )}
                 </div>
-                {!canCheck && !isViewer && !t.is_done && <Lock className="h-3.5 w-3.5 text-muted-foreground mt-1" />}
+                {!canCheck && !t.is_done && <Lock className="h-3.5 w-3.5 text-muted-foreground mt-1" />}
               </div>
             );
           })}
