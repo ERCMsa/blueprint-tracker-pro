@@ -96,12 +96,19 @@ export default function ProjectCard({
   }, [tasks]);
 
   const toggleTask = async (task: Task) => {
-    if (task.is_done || !canCheck || task.invalidated_at) return;
-    const optimistic = { ...task, is_done: true, done_at: new Date().toISOString(), done_by: profile.id };
+    if (!canCheck) return;
+    const next = !task.is_done;
+    const nowIso = new Date().toISOString();
+    const optimistic = {
+      ...task,
+      is_done: next,
+      done_at: next ? nowIso : null,
+      done_by: next ? profile.id : null,
+    };
     setLocalTasks((ts) => ts.map((t) => (t.id === task.id ? optimistic : t)));
     const { error } = await supabase
       .from("project_tasks")
-      .update({ is_done: true, done_at: optimistic.done_at, done_by: profile.id })
+      .update({ is_done: next, done_at: optimistic.done_at, done_by: optimistic.done_by })
       .eq("id", task.id);
     if (error) {
       setLocalTasks((ts) => ts.map((t) => (t.id === task.id ? task : t)));
