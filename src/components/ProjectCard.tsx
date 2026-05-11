@@ -10,8 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { CalendarDays, MessageSquare, ChevronDown, Send, Lock, Calendar as CalendarIcon, Ban, FileCheck, Printer, CalendarPlus } from "lucide-react";
+import { CalendarDays, MessageSquare, ChevronDown, Send, Lock, Calendar as CalendarIcon, FileCheck, Printer, CalendarPlus } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import UserChip from "./UserChip";
@@ -52,11 +51,10 @@ export default function ProjectCard({
 
   const overdue = isOverdue(project.deadline);
   const isResponsable = profile.full_name === project.responsable;
-  const doneCount = tasks.filter((t) => t.is_done && !t.invalidated_at).length;
+  const doneCount = tasks.filter((t) => t.is_done).length;
   const allDone = tasks.length > 0 && doneCount === tasks.length;
   const isViewer = profile.role === "viewer";
   const canCheck = profile.role === "boss" || isResponsable;
-  const canInvalidate = profile.role === "boss" || isResponsable;
   const progressPct = Math.round((doneCount / 5) * 100);
 
   const [comments, setComments] = useState<Comment[]>([]);
@@ -97,12 +95,19 @@ export default function ProjectCard({
   }, [tasks]);
 
   const toggleTask = async (task: Task) => {
-    if (task.is_done || !canCheck || task.invalidated_at) return;
-    const optimistic = { ...task, is_done: true, done_at: new Date().toISOString(), done_by: profile.id };
+    if (!canCheck) return;
+    const next = !task.is_done;
+    const nowIso = new Date().toISOString();
+    const optimistic = {
+      ...task,
+      is_done: next,
+      done_at: next ? nowIso : null,
+      done_by: next ? profile.id : null,
+    };
     setLocalTasks((ts) => ts.map((t) => (t.id === task.id ? optimistic : t)));
     const { error } = await supabase
       .from("project_tasks")
-      .update({ is_done: true, done_at: optimistic.done_at, done_by: profile.id })
+      .update({ is_done: next, done_at: optimistic.done_at, done_by: optimistic.done_by })
       .eq("id", task.id);
     if (error) {
       setLocalTasks((ts) => ts.map((t) => (t.id === task.id ? task : t)));
@@ -158,41 +163,24 @@ export default function ProjectCard({
           {TASK_KEYS.map((key) => {
             const t = taskMap.get(key);
             if (!t) return null;
-            const invalidated = !!t.invalidated_at;
-            const disabled = t.is_done || !canCheck || isViewer || invalidated;
+            const disabled = !canCheck || isViewer;
             return (
               <div key={key} className="flex items-start gap-3 text-sm">
-                {invalidated ? (
-                  <Ban className="h-4 w-4 mt-0.5 text-destructive shrink-0" />
-                ) : (
-                  <Checkbox
-                    checked={t.is_done}
-                    disabled={disabled}
-                    onCheckedChange={() => toggleTask(t)}
-                    className={cn("mt-0.5", t.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
-                  />
-                )}
+                <Checkbox
+                  checked={t.is_done}
+                  disabled={disabled}
+                  onCheckedChange={() => toggleTask(t)}
+                  className={cn("mt-0.5", t.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
+                />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={cn("leading-snug", t.is_done && !invalidated && "line-through text-muted-foreground", invalidated && "line-through text-muted-foreground")}>
-                      {TASK_LABELS[key]}
-                    </span>
-                    {invalidated && <Badge variant="destructive" className="h-5 px-1.5 text-[10px]">Invalidé</Badge>}
-                  </div>
-                  {t.is_done && !invalidated && t.done_at && (
+                  <span className={cn("leading-snug", t.is_done && "line-through text-muted-foreground")}>
+                    {TASK_LABELS[key]}
+                  </span>
+                  {t.is_done && t.done_at && (
                     <div className="text-xs text-success mt-0.5">✓ Terminé le {formatDateTime(t.done_at)}</div>
                   )}
-                  {invalidated && (
-                    <div className="text-xs text-destructive mt-0.5">
-                      Invalidé le {formatDateTime(t.invalidated_at)}
-                      {t.invalidation_reason && <span className="text-muted-foreground"> — {t.invalidation_reason}</span>}
-                    </div>
-                  )}
                 </div>
-                {!canCheck && !isViewer && !t.is_done && !invalidated && <Lock className="h-3.5 w-3.5 text-muted-foreground mt-1" />}
-                {canInvalidate && !invalidated && (
-                  <InvalidateButton task={t} userId={profile.id} onLocal={(updated) => setLocalTasks((ts) => ts.map((x) => x.id === updated.id ? updated : x))} />
-                )}
+                {!canCheck && !isViewer && !t.is_done && <Lock className="h-3.5 w-3.5 text-muted-foreground mt-1" />}
               </div>
             );
           })}
@@ -289,45 +277,3 @@ function DatesPopover({ project, overdue }: { project: Project; overdue: boolean
   );
 }
 
-function InvalidateButton({ task, userId, onLocal }: { task: Task; userId: string; onLocal: (t: Task) => void }) {
-  const [open, setOpen] = useState(false);
-  const [reason, setReason] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  const submit = async () => {
-    setBusy(true);
-    const now = new Date().toISOString();
-    const { error } = await supabase
-      .from("project_tasks")
-      .update({ invalidated_by: userId, invalidated_at: now, invalidation_reason: reason.trim() || null })
-      .eq("id", task.id);
-    setBusy(false);
-    if (error) {
-      toast.error("Action non autorisée");
-      return;
-    }
-    onLocal({ ...task, invalidated_by: userId, invalidated_at: now, invalidation_reason: reason.trim() || null });
-    setOpen(false);
-    setReason("");
-    toast.success("Tâche invalidée");
-  };
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-7 px-2 text-destructive hover:text-destructive hover:bg-destructive/10">
-          <Ban className="h-3.5 w-3.5 mr-1" />
-          Invalider
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="end" className="w-72 space-y-2">
-        <div className="text-sm font-medium">Invalider cette tâche</div>
-        <Input placeholder="Raison (optionnel)" value={reason} onChange={(e) => setReason(e.target.value)} />
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => setOpen(false)}>Annuler</Button>
-          <Button variant="destructive" size="sm" onClick={submit} disabled={busy}>Confirmer</Button>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-}
