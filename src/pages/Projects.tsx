@@ -4,7 +4,8 @@ import ProtectedLayout from "@/components/ProtectedLayout";
 import ProjectCard, { Project } from "@/components/ProjectCard";
 import CreateProjectDialog from "@/components/CreateProjectDialog";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, FolderOpen } from "lucide-react";
+import { Loader2, FolderOpen, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Task = { id: string; project_id: string; task_key: string; is_done: boolean; done_at: string | null; done_by: string | null; invalidated_by: string | null; invalidated_at: string | null; invalidation_reason: string | null };
 
@@ -14,6 +15,7 @@ export default function Projects() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [profilesMap, setProfilesMap] = useState<Map<string, { full_name: string }>>(new Map());
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     const [{ data: p }, { data: t }, { data: pr }] = await Promise.all([
@@ -55,7 +57,17 @@ export default function Projects() {
             <h1 className="text-3xl font-bold tracking-tight">Projets</h1>
             <p className="text-muted-foreground mt-1">{projects.length} projet{projects.length > 1 ? "s" : ""} au total</p>
           </div>
-          {profile.role === "boss" && <CreateProjectDialog onCreated={load} userId={profile.id} />}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={async () => { setRefreshing(true); await load(); setRefreshing(false); }}
+              disabled={refreshing}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+              Actualisation
+            </Button>
+            {profile.role === "boss" && <CreateProjectDialog onCreated={load} userId={profile.id} />}
+          </div>
         </div>
 
         {loading ? (
