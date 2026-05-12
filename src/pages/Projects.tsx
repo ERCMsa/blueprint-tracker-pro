@@ -75,6 +75,7 @@ export default function Projects() {
                 tasks={tasks.filter((t) => t.project_id === p.id)}
                 profile={profile}
                 profilesById={profilesMap}
+                onDeleted={load}
               />
             ))}
           </div>
