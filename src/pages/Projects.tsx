@@ -57,7 +57,17 @@ export default function Projects() {
             <h1 className="text-3xl font-bold tracking-tight">Projets</h1>
             <p className="text-muted-foreground mt-1">{projects.length} projet{projects.length > 1 ? "s" : ""} au total</p>
           </div>
-          {profile.role === "boss" && <CreateProjectDialog onCreated={load} userId={profile.id} />}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={async () => { setRefreshing(true); await load(); setRefreshing(false); }}
+              disabled={refreshing}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+              Actualisation
+            </Button>
+            {profile.role === "boss" && <CreateProjectDialog onCreated={load} userId={profile.id} />}
+          </div>
         </div>
 
         {loading ? (
