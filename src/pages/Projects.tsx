@@ -4,7 +4,8 @@ import ProtectedLayout from "@/components/ProtectedLayout";
 import ProjectCard, { Project } from "@/components/ProjectCard";
 import CreateProjectDialog from "@/components/CreateProjectDialog";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, FolderOpen } from "lucide-react";
+import { Loader2, FolderOpen, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Task = { id: string; project_id: string; task_key: string; is_done: boolean; done_at: string | null; done_by: string | null; invalidated_by: string | null; invalidated_at: string | null; invalidation_reason: string | null };
 
