@@ -15,6 +15,7 @@ export default function Projects() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [profilesMap, setProfilesMap] = useState<Map<string, { full_name: string }>>(new Map());
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     const [{ data: p }, { data: t }, { data: pr }] = await Promise.all([
