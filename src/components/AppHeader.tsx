@@ -37,7 +37,7 @@ export default function AppHeader({ profile }: { profile: Profile }) {
             <Building2 className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <div className="font-bold text-base leading-tight">ERC MSA</div>
+            <div className="font-bold text-base leading-tight">ERCMsa</div>
             <div className="text-xs text-muted-foreground leading-tight">Gestion Projets</div>
           </div>
         </Link>

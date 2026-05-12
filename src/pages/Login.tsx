@@ -49,7 +49,7 @@ export default function Login() {
             <Building2 className="h-7 w-7" />
           </div>
           <div>
-            <div className="text-2xl font-bold">ERC MSA</div>
+            <div className="text-2xl font-bold">ERCMsa</div>
             <div className="text-sm opacity-80">Plateforme de gestion d'ingénierie</div>
           </div>
         </div>
@@ -61,7 +61,7 @@ export default function Login() {
             Suivi en temps réel des plans, achats et finitions. Coordination entre ingénieurs et responsables.
           </p>
         </div>
-        <div className="relative text-sm opacity-60">© {new Date().getFullYear()} ERC MSA — Tous droits réservés</div>
+        <div className="relative text-sm opacity-60">© {new Date().getFullYear()} ERCMsa — Tous droits réservés</div>
       </div>
 
       <div className="flex items-center justify-center p-6 bg-background">
@@ -70,7 +70,7 @@ export default function Login() {
             <div className="h-10 w-10 rounded-md bg-[image:var(--gradient-hero)] grid place-items-center">
               <Building2 className="h-5 w-5 text-primary-foreground" />
             </div>
-            <div className="font-bold text-lg">ERC MSA</div>
+            <div className="font-bold text-lg">ERCMsa</div>
           </div>
           <h2 className="text-2xl font-bold">Connexion</h2>
           <p className="text-sm text-muted-foreground mt-1">Accédez à votre espace de travail</p>
