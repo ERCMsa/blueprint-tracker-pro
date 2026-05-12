@@ -37,8 +37,13 @@ export function formatDateTime(d: string | Date | null | undefined) {
   return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
 }
 
-export function isOverdue(deadline: string) {
-  return new Date(deadline) < new Date(new Date().toDateString());
+export function isOverdue(date: string | null | undefined) {
+  if (!date) return false;
+  const d = new Date(date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  d.setHours(0, 0, 0, 0);
+  return d < today;
 }
 
 export function progressColorClass(pct: number) {
