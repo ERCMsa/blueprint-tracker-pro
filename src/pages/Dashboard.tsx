@@ -17,7 +17,7 @@ export default function Dashboard() {
   useEffect(() => {
     (async () => {
       const [{ data: p }, { data: t }] = await Promise.all([
-        supabase.from("projects").select("id, deadline"),
+        supabase.from("projects").select("id, date_impression_plans"),
         supabase.from("project_tasks").select("project_id, is_done"),
       ]);
       setProjects(p ?? []);
