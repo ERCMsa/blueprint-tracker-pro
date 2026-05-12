@@ -170,6 +170,34 @@ export default function ProjectCard({
           <div className="flex items-center gap-2 shrink-0">
             <Badge className={cn("border-0", typeColorClass(project.type))}>{project.type}</Badge>
             <DatesPopover project={project} overdue={overdue && !allDone} />
+            {isBoss && (
+              <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Supprimer ce projet ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Le projet « {project.name} » et toutes ses données associées (tâches, commentaires) seront définitivement supprimés. Cette action est irréversible.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={deleting}>Annuler</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={(e) => { e.preventDefault(); handleDelete(); }}
+                      disabled={deleting}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {deleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                      Supprimer
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         </div>
 
