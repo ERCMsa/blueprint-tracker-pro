@@ -10,7 +10,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarDays, MessageSquare, ChevronDown, Send, Lock, Calendar as CalendarIcon, FileCheck, Printer, CalendarPlus } from "lucide-react";
+import { CalendarDays, MessageSquare, ChevronDown, Send, Lock, Calendar as CalendarIcon, FileCheck, Printer, CalendarPlus, Trash2, Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import UserChip from "./UserChip";
@@ -39,11 +50,13 @@ export default function ProjectCard({
   tasks: tasksProp,
   profile,
   profilesById,
+  onDeleted,
 }: {
   project: Project;
   tasks: Task[];
   profile: Profile;
   profilesById: Map<string, { full_name: string }>;
+  onDeleted?: () => void;
 }) {
   const [localTasks, setLocalTasks] = useState<Task[]>(tasksProp);
   useEffect(() => { setLocalTasks(tasksProp); }, [tasksProp]);
@@ -51,11 +64,29 @@ export default function ProjectCard({
 
   const overdue = false;
   const isResponsable = profile.full_name === project.responsable;
+  const isBoss = profile.role === "boss";
   const doneCount = tasks.filter((t) => t.is_done).length;
   const allDone = tasks.length > 0 && doneCount === tasks.length;
   const isViewer = profile.role === "viewer";
   const canCheck = isResponsable;
   const progressPct = Math.round((doneCount / 5) * 100);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    await supabase.from("comments").delete().eq("project_id", project.id);
+    await supabase.from("project_tasks").delete().eq("project_id", project.id);
+    const { error } = await supabase.from("projects").delete().eq("id", project.id);
+    setDeleting(false);
+    if (error) {
+      toast.error("Suppression impossible");
+      return;
+    }
+    toast.success("Projet supprimé");
+    setDeleteOpen(false);
+    onDeleted?.();
+  };
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [showComments, setShowComments] = useState(false);
@@ -139,6 +170,34 @@ export default function ProjectCard({
           <div className="flex items-center gap-2 shrink-0">
             <Badge className={cn("border-0", typeColorClass(project.type))}>{project.type}</Badge>
             <DatesPopover project={project} overdue={overdue && !allDone} />
+            {isBoss && (
+              <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Supprimer ce projet ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Le projet « {project.name} » et toutes ses données associées (tâches, commentaires) seront définitivement supprimés. Cette action est irréversible.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={deleting}>Annuler</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={(e) => { e.preventDefault(); handleDelete(); }}
+                      disabled={deleting}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {deleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                      Supprimer
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         </div>
 
