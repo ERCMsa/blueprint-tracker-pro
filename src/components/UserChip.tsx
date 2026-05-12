@@ -24,19 +24,18 @@ function initials(name: string) {
 export default function UserChip({ name, className }: { name: string; className?: string }) {
   if (!name) return null;
   const color = PALETTE[hashIndex(name)];
-  const display = name.length > 12 ? name.slice(0, 12) + "…" : name;
   return (
     <span
       title={name}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full bg-muted/60 border pl-0.5 pr-2.5 py-0.5 text-xs font-medium max-w-full",
+        "inline-flex items-center gap-1.5 rounded-full bg-muted/60 border pl-0.5 pr-2.5 py-0.5 text-xs font-medium whitespace-nowrap",
         className
       )}
     >
-      <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white", color)}>
+      <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white shrink-0", color)}>
         {initials(name)}
       </span>
-      <span className="truncate">{display}</span>
+      <span>{name}</span>
     </span>
   );
 }

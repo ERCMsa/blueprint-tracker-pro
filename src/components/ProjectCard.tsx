@@ -62,7 +62,7 @@ export default function ProjectCard({
   useEffect(() => { setLocalTasks(tasksProp); }, [tasksProp]);
   const tasks = localTasks;
 
-  const overdue = false;
+  const overdue = isOverdue(project.date_impression_plans);
   const isResponsable = profile.full_name === project.responsable;
   const isBoss = profile.role === "boss";
   const doneCount = tasks.filter((t) => t.is_done).length;
@@ -160,7 +160,7 @@ export default function ProjectCard({
   };
 
   return (
-    <Card className="overflow-hidden bg-[image:var(--gradient-card)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow flex flex-col">
+    <Card className={cn("overflow-hidden bg-[image:var(--gradient-card)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow flex flex-col", overdue && !allDone && "border-2 border-destructive")}>
       <div className="p-5 space-y-4 flex-1">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
