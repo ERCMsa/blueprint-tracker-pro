@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { FolderKanban, CheckCircle2, Clock, AlertTriangle, Plus, Users } from "lucide-react";
 import { isOverdue } from "@/lib/projectUtils";
 
-type ProjectRow = { id: string; deadline: string };
+type ProjectRow = { id: string; date_impression_plans: string | null };
 type TaskRow = { project_id: string; is_done: boolean };
 
 export default function Dashboard() {
