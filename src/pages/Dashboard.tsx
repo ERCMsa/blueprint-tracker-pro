@@ -36,7 +36,7 @@ export default function Dashboard() {
     const ts = taskByProj.get(p.id) ?? [];
     return ts.length > 0 && ts.every((t) => t.is_done);
   }).length;
-  const overdue = projects.filter((p) => isOverdue(p.deadline) && !(taskByProj.get(p.id) ?? []).every((t) => t.is_done)).length;
+  const overdue = projects.filter((p) => isOverdue(p.date_impression_plans)).length;
   const inProgress = total - completed;
 
   const stats = [
