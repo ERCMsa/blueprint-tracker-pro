@@ -50,11 +50,13 @@ export default function ProjectCard({
   tasks: tasksProp,
   profile,
   profilesById,
+  onDeleted,
 }: {
   project: Project;
   tasks: Task[];
   profile: Profile;
   profilesById: Map<string, { full_name: string }>;
+  onDeleted?: () => void;
 }) {
   const [localTasks, setLocalTasks] = useState<Task[]>(tasksProp);
   useEffect(() => { setLocalTasks(tasksProp); }, [tasksProp]);
@@ -62,11 +64,29 @@ export default function ProjectCard({
 
   const overdue = false;
   const isResponsable = profile.full_name === project.responsable;
+  const isBoss = profile.role === "boss";
   const doneCount = tasks.filter((t) => t.is_done).length;
   const allDone = tasks.length > 0 && doneCount === tasks.length;
   const isViewer = profile.role === "viewer";
   const canCheck = isResponsable;
   const progressPct = Math.round((doneCount / 5) * 100);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    await supabase.from("comments").delete().eq("project_id", project.id);
+    await supabase.from("project_tasks").delete().eq("project_id", project.id);
+    const { error } = await supabase.from("projects").delete().eq("id", project.id);
+    setDeleting(false);
+    if (error) {
+      toast.error("Suppression impossible");
+      return;
+    }
+    toast.success("Projet supprimé");
+    setDeleteOpen(false);
+    onDeleted?.();
+  };
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [showComments, setShowComments] = useState(false);
