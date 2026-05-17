@@ -47,16 +47,12 @@ export default function Dashboard() {
   ];
 
   return (
-    <ProtectedLayout requireBoss>
+    <ProtectedLayout>
       <div className="space-y-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Tableau de bord</h1>
             <p className="text-muted-foreground mt-1">Vue d'ensemble de vos projets d'ingénierie</p>
-          </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline"><Link to="/users"><Users className="h-4 w-4 mr-2" />Utilisateurs</Link></Button>
-            <Button asChild><Link to="/projects"><Plus className="h-4 w-4 mr-2" />Nouveau projet</Link></Button>
           </div>
         </div>
 
