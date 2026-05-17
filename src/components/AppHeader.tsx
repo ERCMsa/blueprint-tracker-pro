@@ -32,7 +32,7 @@ export default function AppHeader({ profile }: { profile: Profile }) {
   return (
     <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur">
       <div className="container flex h-16 items-center justify-between gap-4">
-        <Link to={profile.role === "boss" ? "/dashboard" : "/projects"} className="flex items-center gap-2">
+        <Link to={profile.role === "engineer" ? "/projects" : "/dashboard"} className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-md bg-[image:var(--gradient-hero)] flex items-center justify-center">
             <Building2 className="h-5 w-5 text-primary-foreground" />
           </div>
@@ -42,7 +42,7 @@ export default function AppHeader({ profile }: { profile: Profile }) {
           </div>
         </Link>
         <nav className="flex items-center gap-1">
-          {profile.role === "boss" && navItem("/dashboard", <LayoutDashboard className="h-4 w-4" />, "Tableau de bord")}
+          {(profile.role === "boss" || profile.role === "viewer") && navItem("/dashboard", <LayoutDashboard className="h-4 w-4" />, "Tableau de bord")}
           {navItem("/projects", <FolderKanban className="h-4 w-4" />, "Projets")}
           {profile.role === "boss" && navItem("/users", <Users className="h-4 w-4" />, "Utilisateurs")}
         </nav>

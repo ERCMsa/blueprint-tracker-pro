@@ -58,48 +58,6 @@ export default function Users() {
             <h1 className="text-3xl font-bold tracking-tight">Utilisateurs</h1>
             <p className="text-muted-foreground mt-1">Gérez les accès à la plateforme</p>
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button><UserPlus className="h-4 w-4 mr-2" />Ajouter</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>Nouvel utilisateur</DialogTitle></DialogHeader>
-              <form onSubmit={submit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Nom complet</Label>
-                  <Input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label>Nom d'utilisateur</Label>
-                  <Input value={username} onChange={(e) => setUsername(e.target.value)} required placeholder="ex: jdupont" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Rôle</Label>
-                    <Select value={role} onValueChange={(v: any) => setRole(v)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="engineer">Ingénieur</SelectItem>
-                        <SelectItem value="boss">Responsable</SelectItem>
-                        <SelectItem value="viewer">Observateur</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Mot de passe</Label>
-                    <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
-                  <Button type="submit" disabled={loading}>
-                    {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                    Créer
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
         </div>
 
         <Card className="overflow-hidden">

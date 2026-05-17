@@ -62,9 +62,6 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
     if (!dateValidation) { toast.error("Sélectionnez la date de validation du projet"); return; }
     if (!dateImpression) { toast.error("Sélectionnez la date d'impression des plans"); return; }
     if (!responsable) { toast.error("Sélectionnez un responsable"); return; }
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    if (dateValidation < today) { toast.error("La date de validation doit être après la date de création"); return; }
-    if (dateImpression < today) { toast.error("La date d'impression doit être après la date de création"); return; }
 
     setLoading(true);
     const { error } = await supabase.from("projects").insert({
