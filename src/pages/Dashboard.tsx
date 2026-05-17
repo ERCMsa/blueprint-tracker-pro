@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ProtectedLayout from "@/components/ProtectedLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FolderKanban, CheckCircle2, Clock, AlertTriangle, Plus, Users } from "lucide-react";
+import { FolderKanban, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import { isOverdue } from "@/lib/projectUtils";
 
 type ProjectRow = { id: string; date_impression_plans: string | null };
