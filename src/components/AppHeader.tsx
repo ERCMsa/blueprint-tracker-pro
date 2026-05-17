@@ -42,7 +42,7 @@ export default function AppHeader({ profile }: { profile: Profile }) {
           </div>
         </Link>
         <nav className="flex items-center gap-1">
-          {profile.role === "boss" && navItem("/dashboard", <LayoutDashboard className="h-4 w-4" />, "Tableau de bord")}
+          {(profile.role === "boss" || profile.role === "viewer") && navItem("/dashboard", <LayoutDashboard className="h-4 w-4" />, "Tableau de bord")}
           {navItem("/projects", <FolderKanban className="h-4 w-4" />, "Projets")}
           {profile.role === "boss" && navItem("/users", <Users className="h-4 w-4" />, "Utilisateurs")}
         </nav>
