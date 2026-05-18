@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Building2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,9 +10,17 @@ import { toast } from "sonner";
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const u = searchParams.get("username");
+    const p = searchParams.get("password");
+    if (u) setUsername(u);
+    if (p) setPassword(p);
+  }, [searchParams]);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
