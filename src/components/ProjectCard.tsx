@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Profile } from "@/hooks/useAuth";
 import { TASK_KEYS, TASK_LABELS, formatDate, formatDateTime, isOverdue, typeColorClass, progressColorClass } from "@/lib/projectUtils";
