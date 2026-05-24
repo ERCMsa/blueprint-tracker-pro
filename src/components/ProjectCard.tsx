@@ -201,7 +201,52 @@ export default function ProjectCard({
 
   return (
     <Card className={cn("overflow-hidden bg-[image:var(--gradient-card)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow flex flex-col", overdue && !allDone && "border-2 border-destructive")}>
+      <div className="relative w-full h-40 bg-muted overflow-hidden group">
+        {project.cover_image_url ? (
+          <img src={project.cover_image_url} alt={project.name} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+            <ImageIcon className="h-10 w-10 opacity-40" />
+          </div>
+        )}
+        {isBoss && (
+          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+            <Button
+              type="button"
+              size="icon"
+              variant="secondary"
+              className="h-7 w-7"
+              disabled={uploadingImage}
+              onClick={() => coverInputRef.current?.click()}
+              title={project.cover_image_url ? "Remplacer l'image" : "Téléverser une image"}
+            >
+              {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            </Button>
+            {project.cover_image_url && (
+              <Button
+                type="button"
+                size="icon"
+                variant="destructive"
+                className="h-7 w-7"
+                disabled={uploadingImage}
+                onClick={handleCoverRemove}
+                title="Supprimer l'image"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverUpload(f); }}
+            />
+          </div>
+        )}
+      </div>
       <div className="p-5 space-y-4 flex-1">
+
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="font-bold text-lg leading-tight truncate">{project.name}</h3>
