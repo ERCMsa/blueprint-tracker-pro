@@ -130,6 +130,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          cover_image_url: string | null
           created_at: string
           created_by: string | null
           date_impression_plans: string | null
@@ -142,6 +143,7 @@ export type Database = {
           type: string
         }
         Insert: {
+          cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
           date_impression_plans?: string | null
@@ -154,6 +156,7 @@ export type Database = {
           type: string
         }
         Update: {
+          cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
           date_impression_plans?: string | null
