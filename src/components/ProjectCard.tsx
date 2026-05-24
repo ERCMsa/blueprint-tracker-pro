@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Profile } from "@/hooks/useAuth";
 import { TASK_KEYS, TASK_LABELS, formatDate, formatDateTime, isOverdue, typeColorClass, progressColorClass } from "@/lib/projectUtils";
@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarDays, MessageSquare, ChevronDown, Send, Lock, Calendar as CalendarIcon, FileCheck, Printer, CalendarPlus, Trash2, Loader2 } from "lucide-react";
+import { CalendarDays, MessageSquare, ChevronDown, Send, Lock, Calendar as CalendarIcon, FileCheck, Printer, CalendarPlus, Trash2, Loader2, ImageIcon, Upload, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +36,7 @@ export type Project = {
   created_at: string;
   date_validation_projet: string | null;
   date_impression_plans: string | null;
+  cover_image_url: string | null;
 };
 
 type Task = {
@@ -72,6 +73,45 @@ export default function ProjectCard({
   const progressPct = Math.round((doneCount / 5) * 100);
   const [deleting, setDeleting] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const extractStoragePath = (url: string): string | null => {
+    const marker = "/object/public/project-images/";
+    const idx = url.indexOf(marker);
+    return idx >= 0 ? url.slice(idx + marker.length) : null;
+  };
+
+  const handleCoverUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("Fichier image requis"); return; }
+    setUploadingImage(true);
+    if (project.cover_image_url) {
+      const oldPath = extractStoragePath(project.cover_image_url);
+      if (oldPath) await supabase.storage.from("project-images").remove([oldPath]);
+    }
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `project-${project.id}/cover-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("project-images").upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) { setUploadingImage(false); toast.error(upErr.message); return; }
+    const { data: pub } = supabase.storage.from("project-images").getPublicUrl(path);
+    const { error: updErr } = await supabase.from("projects").update({ cover_image_url: pub.publicUrl }).eq("id", project.id);
+    setUploadingImage(false);
+    if (updErr) toast.error(updErr.message);
+    else toast.success("Image mise à jour");
+    if (coverInputRef.current) coverInputRef.current.value = "";
+  };
+
+  const handleCoverRemove = async () => {
+    if (!project.cover_image_url) return;
+    setUploadingImage(true);
+    const oldPath = extractStoragePath(project.cover_image_url);
+    if (oldPath) await supabase.storage.from("project-images").remove([oldPath]);
+    const { error } = await supabase.from("projects").update({ cover_image_url: null }).eq("id", project.id);
+    setUploadingImage(false);
+    if (error) toast.error(error.message);
+    else toast.success("Image supprimée");
+  };
+
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -161,7 +201,52 @@ export default function ProjectCard({
 
   return (
     <Card className={cn("overflow-hidden bg-[image:var(--gradient-card)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow flex flex-col", overdue && !allDone && "border-2 border-destructive")}>
+      <div className="relative w-full h-40 bg-muted overflow-hidden group">
+        {project.cover_image_url ? (
+          <img src={project.cover_image_url} alt={project.name} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+            <ImageIcon className="h-10 w-10 opacity-40" />
+          </div>
+        )}
+        {isBoss && (
+          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+            <Button
+              type="button"
+              size="icon"
+              variant="secondary"
+              className="h-7 w-7"
+              disabled={uploadingImage}
+              onClick={() => coverInputRef.current?.click()}
+              title={project.cover_image_url ? "Remplacer l'image" : "Téléverser une image"}
+            >
+              {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            </Button>
+            {project.cover_image_url && (
+              <Button
+                type="button"
+                size="icon"
+                variant="destructive"
+                className="h-7 w-7"
+                disabled={uploadingImage}
+                onClick={handleCoverRemove}
+                title="Supprimer l'image"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverUpload(f); }}
+            />
+          </div>
+        )}
+      </div>
       <div className="p-5 space-y-4 flex-1">
+
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="font-bold text-lg leading-tight truncate">{project.name}</h3>
