@@ -36,6 +36,7 @@ export type Project = {
   created_at: string;
   date_validation_projet: string | null;
   date_impression_plans: string | null;
+  cover_image_url: string | null;
 };
 
 type Task = {
