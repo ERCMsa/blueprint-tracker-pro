@@ -73,6 +73,45 @@ export default function ProjectCard({
   const progressPct = Math.round((doneCount / 5) * 100);
   const [deleting, setDeleting] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const extractStoragePath = (url: string): string | null => {
+    const marker = "/object/public/project-images/";
+    const idx = url.indexOf(marker);
+    return idx >= 0 ? url.slice(idx + marker.length) : null;
+  };
+
+  const handleCoverUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("Fichier image requis"); return; }
+    setUploadingImage(true);
+    if (project.cover_image_url) {
+      const oldPath = extractStoragePath(project.cover_image_url);
+      if (oldPath) await supabase.storage.from("project-images").remove([oldPath]);
+    }
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `project-${project.id}/cover-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("project-images").upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) { setUploadingImage(false); toast.error(upErr.message); return; }
+    const { data: pub } = supabase.storage.from("project-images").getPublicUrl(path);
+    const { error: updErr } = await supabase.from("projects").update({ cover_image_url: pub.publicUrl }).eq("id", project.id);
+    setUploadingImage(false);
+    if (updErr) toast.error(updErr.message);
+    else toast.success("Image mise à jour");
+    if (coverInputRef.current) coverInputRef.current.value = "";
+  };
+
+  const handleCoverRemove = async () => {
+    if (!project.cover_image_url) return;
+    setUploadingImage(true);
+    const oldPath = extractStoragePath(project.cover_image_url);
+    if (oldPath) await supabase.storage.from("project-images").remove([oldPath]);
+    const { error } = await supabase.from("projects").update({ cover_image_url: null }).eq("id", project.id);
+    setUploadingImage(false);
+    if (error) toast.error(error.message);
+    else toast.success("Image supprimée");
+  };
+
 
   const handleDelete = async () => {
     setDeleting(true);
