@@ -436,7 +436,7 @@ function DatesPopover({ project, overdue }: { project: Project; overdue: boolean
   const rows = [
     { icon: CalendarPlus, label: "Date de création", value: project.created_at },
     { icon: FileCheck, label: "Date de validation", value: project.date_validation_projet },
-    { icon: Printer, label: "Date d'impression des plans", value: project.date_impression_plans },
+    { icon: Printer, label: "Date de soumission des plans", value: project.date_impression_plans },
   ];
   return (
     <Popover>
