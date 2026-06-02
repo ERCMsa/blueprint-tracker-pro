@@ -25,9 +25,9 @@ export type ParentTaskDef = {
 };
 
 export const PARENT_TASKS: ParentTaskDef[] = [
-  { key: "plan_created", subtaskKeys: null },
-  { key: "achat_profile", subtaskKeys: null },
-  { key: "achat_boulonnerie", subtaskKeys: null },
+  { key: "plan_created", subtaskKeys: ["plan_created_creer", "plan_created_transmettre"] },
+  { key: "achat_profile", subtaskKeys: ["achat_profile_creer", "achat_profile_transmettre"] },
+  { key: "achat_boulonnerie", subtaskKeys: ["achat_boulonnerie_creer", "achat_boulonnerie_transmettre"] },
   { key: "piece_finition", subtaskKeys: ["piece_finition_creer", "piece_finition_transmettre"], excludeFromProgress: true },
   { key: "cnc_finish", subtaskKeys: ["cnc_finish_creer", "cnc_finish_transmettre"] },
 ];
