@@ -135,7 +135,6 @@ export default function ProjectCard({
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (isViewer) return;
     let mounted = true;
     (async () => {
       const { data } = await supabase
@@ -158,7 +157,7 @@ export default function ProjectCard({
       mounted = false;
       supabase.removeChannel(channel);
     };
-  }, [project.id, isViewer]);
+  }, [project.id]);
 
   const taskMap = useMemo(() => {
     const m = new Map<string, Task>();
