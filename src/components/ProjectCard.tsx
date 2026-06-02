@@ -304,25 +304,69 @@ export default function ProjectCard({
         </div>
 
         <div className="space-y-2 pt-2 border-t">
-          {TASK_KEYS.map((key) => {
-            const t = taskMap.get(key);
-            if (!t) return null;
-            return (
-              <div key={key} className="flex items-start gap-3 text-sm">
-                <Checkbox
-                  checked={t.is_done}
-                  onCheckedChange={() => toggleTask(t)}
-                  className={cn("mt-0.5", !canCheck && "cursor-not-allowed", t.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
-                />
-                <div className="flex-1 min-w-0">
-                  <span className={cn("leading-snug", t.is_done && "line-through text-muted-foreground")}>
-                    {TASK_LABELS[key]}
-                  </span>
-                  {t.is_done && t.done_at && (
-                    <div className="text-xs text-success mt-0.5">✓ Terminé le {formatDateTime(t.done_at)}</div>
-                  )}
+          {PARENT_TASKS.map((p) => {
+            if (!p.subtaskKeys) {
+              const t = taskMap.get(p.key);
+              if (!t) return null;
+              return (
+                <div key={p.key} className="flex items-start gap-3 text-sm">
+                  <Checkbox
+                    checked={t.is_done}
+                    onCheckedChange={() => toggleTask(t)}
+                    className={cn("mt-0.5", !canCheck && "cursor-not-allowed", t.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <span className={cn("leading-snug", t.is_done && "line-through text-muted-foreground")}>
+                      {TASK_LABELS[p.key]}
+                    </span>
+                    {t.is_done && t.done_at && (
+                      <div className="text-xs text-success mt-0.5">✓ Terminé le {formatDateTime(t.done_at)}</div>
+                    )}
+                  </div>
+                  {!canCheck && !t.is_done && <Lock className="h-3.5 w-3.5 text-muted-foreground mt-1" />}
                 </div>
-                {!canCheck && !t.is_done && <Lock className="h-3.5 w-3.5 text-muted-foreground mt-1" />}
+              );
+            }
+            // Parent with subtasks
+            const subs = p.subtaskKeys.map((k) => taskMap.get(k)).filter(Boolean) as Task[];
+            const parentDone = subs.length > 0 && subs.every((s) => s.is_done);
+            return (
+              <div key={p.key} className="space-y-1.5">
+                <div className="flex items-start gap-3 text-sm">
+                  <div className={cn("mt-0.5 h-4 w-4 rounded-sm border flex items-center justify-center shrink-0", parentDone ? "bg-success border-success text-white" : "border-input")}>
+                    {parentDone && <span className="text-[10px] leading-none">✓</span>}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className={cn("leading-snug font-medium", parentDone && "line-through text-muted-foreground")}>
+                      {TASK_LABELS[p.key]}
+                    </span>
+                  </div>
+                </div>
+                <div className="ml-7 space-y-1.5">
+                  {p.subtaskKeys.map((sk) => {
+                    const st = taskMap.get(sk);
+                    if (!st) return null;
+                    const suffix = sk.split("_").pop() as string;
+                    return (
+                      <div key={sk} className="flex items-start gap-3 text-xs">
+                        <Checkbox
+                          checked={st.is_done}
+                          onCheckedChange={() => toggleTask(st)}
+                          className={cn("mt-0.5 h-3.5 w-3.5", !canCheck && "cursor-not-allowed", st.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <span className={cn("leading-snug", st.is_done && "line-through text-muted-foreground")}>
+                            {SUBTASK_LABELS[suffix] ?? sk}
+                          </span>
+                          {st.is_done && st.done_at && (
+                            <div className="text-[11px] text-success mt-0.5">✓ Validé le {formatDateTime(st.done_at)}</div>
+                          )}
+                        </div>
+                        {!canCheck && !st.is_done && <Lock className="h-3 w-3 text-muted-foreground mt-1" />}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}
