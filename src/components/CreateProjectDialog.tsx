@@ -168,7 +168,7 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
               <DateField value={dateValidation} onChange={setDateValidation} />
             </div>
             <div className="space-y-2">
-              <Label>Date d'impression des plans</Label>
+              <Label>Date de soumission des plans</Label>
               <DateField value={dateImpression} onChange={setDateImpression} />
             </div>
           </div>
