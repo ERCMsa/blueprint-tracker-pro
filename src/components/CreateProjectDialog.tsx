@@ -83,7 +83,7 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!dateValidation) { toast.error("Sélectionnez la date de validation du projet"); return; }
-    if (!dateImpression) { toast.error("Sélectionnez la date d'impression des plans"); return; }
+    if (!dateImpression) { toast.error("Sélectionnez la date de soumission des plans"); return; }
     if (!responsable) { toast.error("Sélectionnez un responsable"); return; }
 
     setLoading(true);
@@ -168,7 +168,7 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
               <DateField value={dateValidation} onChange={setDateValidation} />
             </div>
             <div className="space-y-2">
-              <Label>Date d'impression des plans</Label>
+              <Label>Date de soumission des plans</Label>
               <DateField value={dateImpression} onChange={setDateImpression} />
             </div>
           </div>

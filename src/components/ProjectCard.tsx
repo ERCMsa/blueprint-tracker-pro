@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Profile } from "@/hooks/useAuth";
-import { TASK_KEYS, TASK_LABELS, formatDate, formatDateTime, isOverdue, typeColorClass, progressColorClass } from "@/lib/projectUtils";
+import { PARENT_TASKS, PROGRESS_TASK_KEYS, SUBTASK_LABELS, TASK_LABELS, computeProgress, formatDate, formatDateTime, isOverdue, typeColorClass, progressColorClass } from "@/lib/projectUtils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -66,11 +66,12 @@ export default function ProjectCard({
   const overdue = isOverdue(project.date_impression_plans);
   const isResponsable = profile.full_name === project.responsable;
   const isBoss = profile.role === "boss";
-  const doneCount = tasks.filter((t) => t.is_done).length;
-  const allDone = tasks.length > 0 && doneCount === tasks.length;
   const isViewer = profile.role === "viewer";
   const canCheck = isResponsable;
-  const progressPct = Math.round((doneCount / 5) * 100);
+  const doneKeys = useMemo(() => new Set(tasks.filter((t) => t.is_done).map((t) => t.task_key)), [tasks]);
+  const progressFraction = computeProgress(doneKeys);
+  const progressPct = Math.round(progressFraction * 100);
+  const allDone = PROGRESS_TASK_KEYS.every((k) => doneKeys.has(k));
   const [deleting, setDeleting] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -134,7 +135,6 @@ export default function ProjectCard({
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (isViewer) return;
     let mounted = true;
     (async () => {
       const { data } = await supabase
@@ -157,7 +157,7 @@ export default function ProjectCard({
       mounted = false;
       supabase.removeChannel(channel);
     };
-  }, [project.id, isViewer]);
+  }, [project.id]);
 
   const taskMap = useMemo(() => {
     const m = new Map<string, Task>();
@@ -304,70 +304,114 @@ export default function ProjectCard({
         </div>
 
         <div className="space-y-2 pt-2 border-t">
-          {TASK_KEYS.map((key) => {
-            const t = taskMap.get(key);
-            if (!t) return null;
-            return (
-              <div key={key} className="flex items-start gap-3 text-sm">
-                <Checkbox
-                  checked={t.is_done}
-                  onCheckedChange={() => toggleTask(t)}
-                  className={cn("mt-0.5", !canCheck && "cursor-not-allowed", t.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
-                />
-                <div className="flex-1 min-w-0">
-                  <span className={cn("leading-snug", t.is_done && "line-through text-muted-foreground")}>
-                    {TASK_LABELS[key]}
-                  </span>
-                  {t.is_done && t.done_at && (
-                    <div className="text-xs text-success mt-0.5">✓ Terminé le {formatDateTime(t.done_at)}</div>
-                  )}
+          {PARENT_TASKS.map((p) => {
+            if (!p.subtaskKeys) {
+              const t = taskMap.get(p.key);
+              if (!t) return null;
+              return (
+                <div key={p.key} className="flex items-start gap-3 text-sm">
+                  <Checkbox
+                    checked={t.is_done}
+                    onCheckedChange={() => toggleTask(t)}
+                    className={cn("mt-0.5", !canCheck && "cursor-not-allowed", t.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <span className={cn("leading-snug", t.is_done && "line-through text-muted-foreground")}>
+                      {TASK_LABELS[p.key]}
+                    </span>
+                    {t.is_done && t.done_at && (
+                      <div className="text-xs text-success mt-0.5">✓ Terminé le {formatDateTime(t.done_at)}</div>
+                    )}
+                  </div>
+                  {!canCheck && !t.is_done && <Lock className="h-3.5 w-3.5 text-muted-foreground mt-1" />}
                 </div>
-                {!canCheck && !t.is_done && <Lock className="h-3.5 w-3.5 text-muted-foreground mt-1" />}
+              );
+            }
+            // Parent with subtasks
+            const subs = p.subtaskKeys.map((k) => taskMap.get(k)).filter(Boolean) as Task[];
+            const parentDone = subs.length > 0 && subs.every((s) => s.is_done);
+            return (
+              <div key={p.key} className="space-y-1.5">
+                <div className="flex items-start gap-3 text-sm">
+                  <div className={cn("mt-0.5 h-4 w-4 rounded-sm border flex items-center justify-center shrink-0", parentDone ? "bg-success border-success text-white" : "border-input")}>
+                    {parentDone && <span className="text-[10px] leading-none">✓</span>}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className={cn("leading-snug font-medium", parentDone && "line-through text-muted-foreground")}>
+                      {TASK_LABELS[p.key]}
+                    </span>
+                  </div>
+                </div>
+                <div className="ml-7 space-y-1.5">
+                  {p.subtaskKeys.map((sk) => {
+                    const st = taskMap.get(sk);
+                    if (!st) return null;
+                    const suffix = sk.split("_").pop() as string;
+                    return (
+                      <div key={sk} className="flex items-start gap-3 text-xs">
+                        <Checkbox
+                          checked={st.is_done}
+                          onCheckedChange={() => toggleTask(st)}
+                          className={cn("mt-0.5 h-3.5 w-3.5", !canCheck && "cursor-not-allowed", st.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <span className={cn("leading-snug", st.is_done && "line-through text-muted-foreground")}>
+                            {SUBTASK_LABELS[suffix] ?? sk}
+                          </span>
+                          {st.is_done && st.done_at && (
+                            <div className="text-[11px] text-success mt-0.5">✓ Validé le {formatDateTime(st.done_at)}</div>
+                          )}
+                        </div>
+                        {!canCheck && !st.is_done && <Lock className="h-3 w-3 text-muted-foreground mt-1" />}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}
         </div>
       </div>
 
-      {!isViewer && (
-        <div className="border-t bg-muted/30">
-          <button
-            className="w-full flex items-center justify-between px-5 py-3 text-sm font-medium hover:bg-muted/60 transition"
-            onClick={() => setShowComments((s) => !s)}
-          >
-            <span className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Commentaires ({comments.length})
-            </span>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", showComments && "rotate-180")} />
-          </button>
+      <div className="border-t bg-muted/30">
+        <button
+          className="w-full flex items-center justify-between px-5 py-3 text-sm font-medium hover:bg-muted/60 transition"
+          onClick={() => setShowComments((s) => !s)}
+        >
+          <span className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Commentaires ({comments.length})
+          </span>
+          <ChevronDown className={cn("h-4 w-4 transition-transform", showComments && "rotate-180")} />
+        </button>
 
-          {showComments && (
-            <div className="p-4 pt-0 space-y-3">
-              <div className="max-h-60 overflow-y-auto space-y-3">
-                {comments.length === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-3">Aucun commentaire pour le moment</p>
-                )}
-                {comments.map((c) => {
-                  const author = profilesById.get(c.user_id)?.full_name ?? "Utilisateur";
-                  return (
-                    <div key={c.id} className="flex gap-2 text-sm">
-                      <Avatar className="h-7 w-7 shrink-0">
-                        <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                          {author.split(" ").map((n) => n[0]).slice(0, 2).join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 bg-card rounded-md px-3 py-2 border">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-medium text-xs">{author}</span>
-                          <span className="text-xs text-muted-foreground">{formatDateTime(c.created_at)}</span>
-                        </div>
-                        <p className="text-sm mt-1 whitespace-pre-wrap break-words">{c.content}</p>
+        {showComments && (
+          <div className="p-4 pt-0 space-y-3">
+            <div className="max-h-60 overflow-y-auto space-y-3">
+              {comments.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-3">Aucun commentaire pour le moment</p>
+              )}
+              {comments.map((c) => {
+                const author = profilesById.get(c.user_id)?.full_name ?? "Utilisateur";
+                return (
+                  <div key={c.id} className="flex gap-2 text-sm">
+                    <Avatar className="h-7 w-7 shrink-0">
+                      <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                        {author.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 bg-card rounded-md px-3 py-2 border">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium text-xs">{author}</span>
+                        <span className="text-xs text-muted-foreground">{formatDateTime(c.created_at)}</span>
                       </div>
+                      <p className="text-sm mt-1 whitespace-pre-wrap break-words">{c.content}</p>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
+            </div>
+            {!isViewer && (
               <div className="flex gap-2 pt-2 border-t">
                 <Textarea
                   placeholder="Écrire un commentaire..."
@@ -380,10 +424,10 @@ export default function ProjectCard({
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
     </Card>
   );
 }
@@ -392,7 +436,7 @@ function DatesPopover({ project, overdue }: { project: Project; overdue: boolean
   const rows = [
     { icon: CalendarPlus, label: "Date de création", value: project.created_at },
     { icon: FileCheck, label: "Date de validation", value: project.date_validation_projet },
-    { icon: Printer, label: "Date d'impression des plans", value: project.date_impression_plans },
+    { icon: Printer, label: "Date de soumission des plans", value: project.date_impression_plans },
   ];
   return (
     <Popover>

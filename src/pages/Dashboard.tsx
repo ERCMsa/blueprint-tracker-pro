@@ -5,10 +5,10 @@ import ProtectedLayout from "@/components/ProtectedLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FolderKanban, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
-import { isOverdue } from "@/lib/projectUtils";
+import { isOverdue, PROGRESS_TASK_KEYS } from "@/lib/projectUtils";
 
 type ProjectRow = { id: string; date_impression_plans: string | null };
-type TaskRow = { project_id: string; is_done: boolean };
+type TaskRow = { project_id: string; task_key: string; is_done: boolean };
 
 export default function Dashboard() {
   const [projects, setProjects] = useState<ProjectRow[]>([]);
@@ -18,7 +18,7 @@ export default function Dashboard() {
     (async () => {
       const [{ data: p }, { data: t }] = await Promise.all([
         supabase.from("projects").select("id, date_impression_plans"),
-        supabase.from("project_tasks").select("project_id, is_done"),
+        supabase.from("project_tasks").select("project_id, task_key, is_done"),
       ]);
       setProjects(p ?? []);
       setTasks(t ?? []);
@@ -34,7 +34,8 @@ export default function Dashboard() {
   });
   const completed = projects.filter((p) => {
     const ts = taskByProj.get(p.id) ?? [];
-    return ts.length > 0 && ts.every((t) => t.is_done);
+    const done = new Set(ts.filter((x) => x.is_done).map((x) => x.task_key));
+    return PROGRESS_TASK_KEYS.every((k) => done.has(k));
   }).length;
   const overdue = projects.filter((p) => isOverdue(p.date_impression_plans)).length;
   const inProgress = total - completed;

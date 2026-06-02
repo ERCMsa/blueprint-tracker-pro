@@ -2,11 +2,62 @@ export const TASK_LABELS: Record<string, string> = {
   plan_created: "Le plan est créé",
   achat_profile: "Liste achat profilé est terminée",
   achat_boulonnerie: "Liste achat boulonnerie est terminée",
-  piece_finition: "Liste des pièces finition est terminée",
-  cnc_finish: "La partie CNC est finie",
+  piece_finition: "Liste des habillage pièces finition est terminée",
+  cnc_finish: "La fiche CNC est finie",
 };
 
-export const TASK_KEYS = ["plan_created", "achat_profile", "achat_boulonnerie", "piece_finition", "cnc_finish"];
+export const SUBTASK_LABELS: Record<string, string> = {
+  creer: "Créer",
+  transmettre: "Transmettre",
+};
+
+// Subtask weights as fraction of parent task progress
+export const SUBTASK_WEIGHTS: Record<string, number> = {
+  creer: 0.8,
+  transmettre: 0.2,
+};
+
+// Parent task definitions in display order
+export type ParentTaskDef = {
+  key: string;
+  subtaskKeys: string[] | null; // null => simple single task (uses key itself)
+  excludeFromProgress?: boolean;
+};
+
+export const PARENT_TASKS: ParentTaskDef[] = [
+  { key: "plan_created", subtaskKeys: null },
+  { key: "achat_profile", subtaskKeys: null },
+  { key: "achat_boulonnerie", subtaskKeys: null },
+  { key: "piece_finition", subtaskKeys: ["piece_finition_creer", "piece_finition_transmettre"], excludeFromProgress: true },
+  { key: "cnc_finish", subtaskKeys: ["cnc_finish_creer", "cnc_finish_transmettre"] },
+];
+
+// All task_key values that should exist in the DB for a project
+export const TASK_KEYS = PARENT_TASKS.flatMap((p) => p.subtaskKeys ?? [p.key]);
+
+// Keys counted in overall project progress (excludes piece_finition family)
+export const PROGRESS_TASK_KEYS = PARENT_TASKS
+  .filter((p) => !p.excludeFromProgress)
+  .flatMap((p) => p.subtaskKeys ?? [p.key]);
+
+// Compute project progress 0..1 given a set of done task_keys
+export function computeProgress(doneKeys: Set<string>): number {
+  const units = PARENT_TASKS.filter((p) => !p.excludeFromProgress);
+  if (units.length === 0) return 0;
+  let sum = 0;
+  for (const p of units) {
+    if (p.subtaskKeys) {
+      for (const sk of p.subtaskKeys) {
+        const suffix = sk.split("_").pop() as string;
+        const weight = SUBTASK_WEIGHTS[suffix] ?? 0;
+        if (doneKeys.has(sk)) sum += weight;
+      }
+    } else if (doneKeys.has(p.key)) {
+      sum += 1;
+    }
+  }
+  return sum / units.length;
+}
 
 export const PROJECT_TYPES = ["Structure", "Architecture", "MEP", "VRD", "Autre"] as const;
 
