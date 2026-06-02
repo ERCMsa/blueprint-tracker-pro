@@ -5,10 +5,10 @@ import ProtectedLayout from "@/components/ProtectedLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FolderKanban, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
-import { isOverdue } from "@/lib/projectUtils";
+import { isOverdue, PROGRESS_TASK_KEYS } from "@/lib/projectUtils";
 
 type ProjectRow = { id: string; date_impression_plans: string | null };
-type TaskRow = { project_id: string; is_done: boolean };
+type TaskRow = { project_id: string; task_key: string; is_done: boolean };
 
 export default function Dashboard() {
   const [projects, setProjects] = useState<ProjectRow[]>([]);
