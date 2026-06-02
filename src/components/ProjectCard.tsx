@@ -373,45 +373,45 @@ export default function ProjectCard({
         </div>
       </div>
 
-      {!isViewer && (
-        <div className="border-t bg-muted/30">
-          <button
-            className="w-full flex items-center justify-between px-5 py-3 text-sm font-medium hover:bg-muted/60 transition"
-            onClick={() => setShowComments((s) => !s)}
-          >
-            <span className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Commentaires ({comments.length})
-            </span>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", showComments && "rotate-180")} />
-          </button>
+      <div className="border-t bg-muted/30">
+        <button
+          className="w-full flex items-center justify-between px-5 py-3 text-sm font-medium hover:bg-muted/60 transition"
+          onClick={() => setShowComments((s) => !s)}
+        >
+          <span className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Commentaires ({comments.length})
+          </span>
+          <ChevronDown className={cn("h-4 w-4 transition-transform", showComments && "rotate-180")} />
+        </button>
 
-          {showComments && (
-            <div className="p-4 pt-0 space-y-3">
-              <div className="max-h-60 overflow-y-auto space-y-3">
-                {comments.length === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-3">Aucun commentaire pour le moment</p>
-                )}
-                {comments.map((c) => {
-                  const author = profilesById.get(c.user_id)?.full_name ?? "Utilisateur";
-                  return (
-                    <div key={c.id} className="flex gap-2 text-sm">
-                      <Avatar className="h-7 w-7 shrink-0">
-                        <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                          {author.split(" ").map((n) => n[0]).slice(0, 2).join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 bg-card rounded-md px-3 py-2 border">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-medium text-xs">{author}</span>
-                          <span className="text-xs text-muted-foreground">{formatDateTime(c.created_at)}</span>
-                        </div>
-                        <p className="text-sm mt-1 whitespace-pre-wrap break-words">{c.content}</p>
+        {showComments && (
+          <div className="p-4 pt-0 space-y-3">
+            <div className="max-h-60 overflow-y-auto space-y-3">
+              {comments.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-3">Aucun commentaire pour le moment</p>
+              )}
+              {comments.map((c) => {
+                const author = profilesById.get(c.user_id)?.full_name ?? "Utilisateur";
+                return (
+                  <div key={c.id} className="flex gap-2 text-sm">
+                    <Avatar className="h-7 w-7 shrink-0">
+                      <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                        {author.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 bg-card rounded-md px-3 py-2 border">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium text-xs">{author}</span>
+                        <span className="text-xs text-muted-foreground">{formatDateTime(c.created_at)}</span>
                       </div>
+                      <p className="text-sm mt-1 whitespace-pre-wrap break-words">{c.content}</p>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
+            </div>
+            {!isViewer && (
               <div className="flex gap-2 pt-2 border-t">
                 <Textarea
                   placeholder="Écrire un commentaire..."
@@ -424,10 +424,10 @@ export default function ProjectCard({
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
     </Card>
   );
 }
