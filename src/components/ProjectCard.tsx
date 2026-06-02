@@ -66,11 +66,12 @@ export default function ProjectCard({
   const overdue = isOverdue(project.date_impression_plans);
   const isResponsable = profile.full_name === project.responsable;
   const isBoss = profile.role === "boss";
-  const doneCount = tasks.filter((t) => t.is_done).length;
-  const allDone = tasks.length > 0 && doneCount === tasks.length;
   const isViewer = profile.role === "viewer";
   const canCheck = isResponsable;
-  const progressPct = Math.round((doneCount / 5) * 100);
+  const doneKeys = useMemo(() => new Set(tasks.filter((t) => t.is_done).map((t) => t.task_key)), [tasks]);
+  const progressFraction = computeProgress(doneKeys);
+  const progressPct = Math.round(progressFraction * 100);
+  const allDone = PROGRESS_TASK_KEYS.every((k) => doneKeys.has(k));
   const [deleting, setDeleting] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
