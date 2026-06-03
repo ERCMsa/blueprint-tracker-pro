@@ -63,7 +63,7 @@ export default function ProjectCard({
   useEffect(() => { setLocalTasks(tasksProp); }, [tasksProp]);
   const tasks = localTasks;
 
-  const overdue = isOverdue(project.date_impression_plans);
+  const overdue = isProjectOverdue(project.date_impression_plans, tasks);
   const isResponsable = profile.full_name === project.responsable;
   const isBoss = profile.role === "boss";
   const isViewer = profile.role === "viewer";
