@@ -33,13 +33,7 @@ export default function AppHeader({ profile }: { profile: Profile }) {
     <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur">
       <div className="container flex h-16 items-center justify-between gap-4">
         <Link to={profile.role === "engineer" ? "/projects" : "/dashboard"} className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-md bg-[image:var(--gradient-hero)] flex items-center justify-center">
-            <Building2 className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <div>
-            <div className="font-bold text-base leading-tight">ERCMsa</div>
-            <div className="text-xs text-muted-foreground leading-tight">Gestion Projets</div>
-          </div>
+            <img src="https://ercmsalhi.com/wp-content/uploads/2022/03/logo-ERCM.png" alt="Logo" className="w-20" />
         </Link>
         <nav className="flex items-center gap-1">
           {(profile.role === "boss" || profile.role === "viewer") && navItem("/dashboard", <LayoutDashboard className="h-4 w-4" />, "Tableau de bord")}

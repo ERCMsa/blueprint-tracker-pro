@@ -53,11 +53,8 @@ export default function Login() {
           backgroundImage: "repeating-linear-gradient(45deg, white 0 1px, transparent 1px 24px)",
         }} />
         <div className="relative flex items-center gap-3">
-          <div className="h-12 w-12 rounded-lg bg-white/10 backdrop-blur grid place-items-center">
-            <Building2 className="h-7 w-7" />
-          </div>
+            <img src="https://ercmsalhi.com/wp-content/uploads/2022/03/logo-ERCM.png" alt="Logo" className="w-40" />
           <div>
-            <div className="text-2xl font-bold">ERCMsa</div>
             <div className="text-sm opacity-80">Plateforme de gestion d'ingénierie</div>
           </div>
         </div>
