@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Profile } from "@/hooks/useAuth";
-import { PARENT_TASKS, PROGRESS_TASK_KEYS, SUBTASK_LABELS, TASK_LABELS, computeProgress, formatDate, formatDateTime, isOverdue, typeColorClass, progressColorClass } from "@/lib/projectUtils";
+import { PARENT_TASKS, PROGRESS_TASK_KEYS, SUBTASK_LABELS, TASK_LABELS, computeProgress, formatDate, formatDateTime, isProjectOverdue, typeColorClass, progressColorClass } from "@/lib/projectUtils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
