@@ -97,6 +97,26 @@ export function isOverdue(date: string | null | undefined) {
   return d < today;
 }
 
+// Project is "en retard" when "Le plan est créé - Transmettre" was validated
+// AFTER date_impression_plans, or is not yet validated and today is past that date.
+export function isProjectOverdue(
+  dateImpression: string | null | undefined,
+  tasks: { task_key: string; is_done: boolean; done_at: string | null }[],
+): boolean {
+  if (!dateImpression) return false;
+  const deadline = new Date(dateImpression);
+  deadline.setHours(0, 0, 0, 0);
+  const t = tasks.find((x) => x.task_key === "plan_created_transmettre");
+  if (t && t.is_done && t.done_at) {
+    const doneAt = new Date(t.done_at);
+    doneAt.setHours(0, 0, 0, 0);
+    return doneAt > deadline;
+  }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today > deadline;
+}
+
 export function progressColorClass(pct: number) {
   if (pct === 0) return "bg-destructive";
   if (pct < 50) return "bg-orange-500";
