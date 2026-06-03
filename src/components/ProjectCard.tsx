@@ -342,27 +342,27 @@ export default function ProjectCard({
                     </span>
                   </div>
                 </div>
-                <div className="ml-7 space-y-1.5">
+                <div className="ml-7 grid grid-cols-2 gap-2">
                   {p.subtaskKeys.map((sk) => {
                     const st = taskMap.get(sk);
                     if (!st) return null;
                     const suffix = sk.split("_").pop() as string;
                     return (
-                      <div key={sk} className="flex items-start gap-3 text-xs">
+                      <div key={sk} className="flex items-start gap-2 text-xs">
                         <Checkbox
                           checked={st.is_done}
                           onCheckedChange={() => toggleTask(st)}
-                          className={cn("mt-0.5 h-3.5 w-3.5", !canCheck && "cursor-not-allowed", st.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
+                          className={cn("mt-0.5 h-3.5 w-3.5 shrink-0", !canCheck && "cursor-not-allowed", st.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
                         />
-                        <div className="flex-1 min-w-0">
+                        <div className="min-w-0">
                           <span className={cn("leading-snug", st.is_done && "line-through text-muted-foreground")}>
                             {SUBTASK_LABELS[suffix] ?? sk}
                           </span>
                           {st.is_done && st.done_at && (
-                            <div className="text-[11px] text-success mt-0.5">✓ Validé le {formatDateTime(st.done_at)}</div>
+                            <div className="text-[10px] text-success mt-0.5">✓ {formatDateTime(st.done_at)}</div>
                           )}
                         </div>
-                        {!canCheck && !st.is_done && <Lock className="h-3 w-3 text-muted-foreground mt-1" />}
+                        {!canCheck && !st.is_done && <Lock className="h-3 w-3 text-muted-foreground mt-1 shrink-0" />}
                       </div>
                     );
                   })}
