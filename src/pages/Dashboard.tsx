@@ -18,7 +18,7 @@ export default function Dashboard() {
     (async () => {
       const [{ data: p }, { data: t }] = await Promise.all([
         supabase.from("projects").select("id, date_impression_plans"),
-        supabase.from("project_tasks").select("project_id, task_key, is_done"),
+        supabase.from("project_tasks").select("project_id, task_key, is_done, done_at"),
       ]);
       setProjects(p ?? []);
       setTasks(t ?? []);
@@ -37,7 +37,7 @@ export default function Dashboard() {
     const done = new Set(ts.filter((x) => x.is_done).map((x) => x.task_key));
     return PROGRESS_TASK_KEYS.every((k) => done.has(k));
   }).length;
-  const overdue = projects.filter((p) => isOverdue(p.date_impression_plans)).length;
+  const overdue = projects.filter((p) => isProjectOverdue(p.date_impression_plans, taskByProj.get(p.id) ?? [])).length;
   const inProgress = total - completed;
 
   const stats = [
