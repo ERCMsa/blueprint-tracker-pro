@@ -8,7 +8,7 @@ import { FolderKanban, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import { isProjectOverdue, PROGRESS_TASK_KEYS } from "@/lib/projectUtils";
 
 type ProjectRow = { id: string; date_impression_plans: string | null };
-type TaskRow = { project_id: string; task_key: string; is_done: boolean };
+type TaskRow = { project_id: string; task_key: string; is_done: boolean; done_at: string | null };
 
 export default function Dashboard() {
   const [projects, setProjects] = useState<ProjectRow[]>([]);
