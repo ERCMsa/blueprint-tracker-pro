@@ -200,8 +200,11 @@ export default function ProjectCard({
   };
 
   return (
-    <Card className={cn("overflow-hidden bg-[image:var(--gradient-card)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow flex flex-col", overdue && !allDone && "border-2 border-destructive")}>
-      <div className="relative w-full h-40 bg-muted overflow-hidden group">
+<Card
+  className={cn("backdrop-blur-sm bg-background/85 overflow-hidden shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow flex flex-col",
+    overdue && !allDone && "border-2 border-destructive"
+  )}
+>      <div className="relative w-full h-40 bg-muted overflow-hidden group">
         {project.cover_image_url ? (
           <img src={project.cover_image_url} alt={project.name} className="w-full h-full object-cover" />
         ) : (
@@ -434,8 +437,8 @@ export default function ProjectCard({
 
 function DatesPopover({ project, overdue }: { project: Project; overdue: boolean }) {
   const rows = [
-    { icon: CalendarPlus, label: "Date de création", value: project.created_at },
     { icon: FileCheck, label: "Date de validation", value: project.date_validation_projet },
+    { icon: CalendarPlus, label: "Date de création", value: project.created_at },
     { icon: Printer, label: "Date de soumission des plans", value: project.date_impression_plans },
   ];
   return (

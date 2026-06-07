@@ -30,7 +30,7 @@ export default function AppHeader({ profile }: { profile: Profile }) {
   );
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur">
+    <header className="sticky top-0 z-40 backdrop-blur">
       <div className="container flex h-16 items-center justify-between gap-4">
         <Link to={profile.role === "engineer" ? "/projects" : "/dashboard"} className="flex items-center gap-2">
             <img src="https://ercmsalhi.com/wp-content/uploads/2022/03/logo-ERCM.png" alt="Logo" className="w-20" />

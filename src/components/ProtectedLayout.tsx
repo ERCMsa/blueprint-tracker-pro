@@ -30,7 +30,7 @@ export default function ProtectedLayout({
   if (requireBoss && profile.role !== "boss") return <Navigate to="/projects" replace />;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <AppHeader profile={profile} />
       <main className="container py-8">{children}</main>
     </div>
