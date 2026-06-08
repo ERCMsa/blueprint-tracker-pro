@@ -49,7 +49,7 @@ export default function IssuesDialog({
         .order("created_at", { ascending: false });
       if (!mounted) return;
       if (error) toast.error(error.message);
-      else setIssues((data as Issue[]) ?? []);
+      else setIssues(((data as unknown) as Issue[]) ?? []);
       setLoading(false);
     })();
 
