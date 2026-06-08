@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarDays, MessageSquare, ChevronDown, Send, Lock, Calendar as CalendarIcon, FileCheck, Printer, CalendarPlus, Trash2, Loader2, ImageIcon, Upload, X } from "lucide-react";
+import { CalendarDays, MessageSquare, ChevronDown, Send, Lock, Calendar as CalendarIcon, FileCheck, Printer, CalendarPlus, Trash2, Loader2, ImageIcon, Upload, X, MoreVertical, AlertCircle } from "lucide-react";
+import IssuesDialog from "./IssuesDialog";
 import {
   AlertDialog,
   AlertDialogAction,
