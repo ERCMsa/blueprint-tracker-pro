@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarDays, MessageSquare, ChevronDown, Send, Lock, Calendar as CalendarIcon, FileCheck, Printer, CalendarPlus, Trash2, Loader2, ImageIcon, Upload, X } from "lucide-react";
+import { CalendarDays, MessageSquare, ChevronDown, Send, Lock, Calendar as CalendarIcon, FileCheck, Printer, CalendarPlus, Trash2, Loader2, ImageIcon, Upload, X, MoreVertical, AlertCircle } from "lucide-react";
+import IssuesDialog from "./IssuesDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -75,6 +76,8 @@ export default function ProjectCard({
   const [deleting, setDeleting] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [issuesOpen, setIssuesOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
   const extractStoragePath = (url: string): string | null => {
@@ -251,13 +254,36 @@ export default function ProjectCard({
       <div className="p-5 space-y-4 flex-1">
 
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="font-bold text-lg leading-tight truncate">{project.name}</h3>
+          <div className="min-w-0 flex-1">
+            <h3
+              className="font-bold text-base sm:text-lg leading-snug break-words overflow-hidden"
+              style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
+              title={project.name}
+            >
+              {project.name}
+            </h3>
             <div className="text-sm text-muted-foreground mt-1 truncate">{project.engineer_name}</div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Badge className={cn("border-0", typeColorClass(project.type))}>{project.type}</Badge>
             <DatesPopover project={project} overdue={overdue && !allDone} />
+            <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="icon" className="h-8 w-8" title="Options">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-44 p-1">
+                <button
+                  type="button"
+                  onClick={() => { setMenuOpen(false); setIssuesOpen(true); }}
+                  className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-left"
+                >
+                  <AlertCircle className="h-4 w-4 text-orange-500" />
+                  Issues
+                </button>
+              </PopoverContent>
+            </Popover>
             {isBoss && (
               <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                 <AlertDialogTrigger asChild>
@@ -288,6 +314,15 @@ export default function ProjectCard({
             )}
           </div>
         </div>
+
+        <IssuesDialog
+          open={issuesOpen}
+          onOpenChange={setIssuesOpen}
+          projectId={project.id}
+          projectName={project.name}
+          profile={profile}
+          profilesById={profilesById}
+        />
 
         <div className="flex items-center justify-between gap-2 text-sm">
           <div className="flex items-center gap-1.5 min-w-0">

@@ -12,6 +12,7 @@ import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { formatDateForStorage } from "@/lib/projectUtils";
 
 function DateField({ value, onChange, placeholder = "Choisir" }: { value?: Date; onChange: (d?: Date) => void; placeholder?: string }) {
   return (
@@ -90,8 +91,8 @@ export default function CreateProjectDialog({ onCreated, userId }: { onCreated: 
     const { data: inserted, error } = await supabase.from("projects").insert({
       name, engineer_name: reference, type,
       responsable, created_by: userId,
-      date_validation_projet: dateValidation.toISOString().slice(0, 10),
-      date_impression_plans: dateImpression.toISOString().slice(0, 10),
+      date_validation_projet: formatDateForStorage(dateValidation),
+      date_impression_plans: formatDateForStorage(dateImpression),
     }).select("id").single();
 
     if (error || !inserted) {
