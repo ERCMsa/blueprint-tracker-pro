@@ -76,6 +76,8 @@ export default function ProjectCard({
   const [deleting, setDeleting] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [issuesOpen, setIssuesOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
   const extractStoragePath = (url: string): string | null => {
