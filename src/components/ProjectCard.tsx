@@ -303,9 +303,19 @@ export default function ProjectCard({
             <DatesPopover project={project} overdue={overdue && !allDone} />
             <Popover open={menuOpen} onOpenChange={setMenuOpen}>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="icon" className="h-8 w-8" title="Options">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
+                <div className="relative">
+                  <Button variant="outline" size="icon" className="h-8 w-8" title="Options">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                  {issueCount > 0 && (
+                    <span
+                      className="absolute -top-1.5 -right-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground"
+                      style={{ animation: "blink 1s infinite" }}
+                    >
+                      {issueCount}
+                    </span>
+                  )}
+                </div>
               </PopoverTrigger>
               <PopoverContent align="end" className="w-44 p-1">
                 <button
