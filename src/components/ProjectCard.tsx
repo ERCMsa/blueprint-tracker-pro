@@ -163,6 +163,39 @@ export default function ProjectCard({
     };
   }, [project.id]);
 
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const { count } = await supabase
+        .from("issues")
+        .select("*", { count: "exact", head: true })
+        .eq("project_id", project.id);
+      if (mounted) setIssueCount(count ?? 0);
+    })();
+
+    const ch = supabase
+      .channel(`issues-count-${project.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "issues", filter: `project_id=eq.${project.id}` },
+        () => {
+          supabase
+            .from("issues")
+            .select("*", { count: "exact", head: true })
+            .eq("project_id", project.id)
+            .then(({ count }) => {
+              if (mounted) setIssueCount(count ?? 0);
+            });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(ch);
+    };
+  }, [project.id]);
+
   const taskMap = useMemo(() => {
     const m = new Map<string, Task>();
     tasks.forEach((t) => m.set(t.task_key, t));
