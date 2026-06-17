@@ -78,6 +78,7 @@ export default function ProjectCard({
   const [uploadingImage, setUploadingImage] = useState(false);
   const [issuesOpen, setIssuesOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [issueCount, setIssueCount] = useState(0);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
   const extractStoragePath = (url: string): string | null => {
@@ -159,6 +160,39 @@ export default function ProjectCard({
     return () => {
       mounted = false;
       supabase.removeChannel(channel);
+    };
+  }, [project.id]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const { count } = await supabase
+        .from("issues")
+        .select("*", { count: "exact", head: true })
+        .eq("project_id", project.id);
+      if (mounted) setIssueCount(count ?? 0);
+    })();
+
+    const ch = supabase
+      .channel(`issues-count-${project.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "issues", filter: `project_id=eq.${project.id}` },
+        () => {
+          supabase
+            .from("issues")
+            .select("*", { count: "exact", head: true })
+            .eq("project_id", project.id)
+            .then(({ count }) => {
+              if (mounted) setIssueCount(count ?? 0);
+            });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(ch);
     };
   }, [project.id]);
 
@@ -269,9 +303,19 @@ export default function ProjectCard({
             <DatesPopover project={project} overdue={overdue && !allDone} />
             <Popover open={menuOpen} onOpenChange={setMenuOpen}>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="icon" className="h-8 w-8" title="Options">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
+                <div className="relative">
+                  <Button variant="outline" size="icon" className="h-8 w-8" title="Options">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                  {issueCount > 0 && (
+                    <span
+                      className="absolute -top-1.5 -right-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground"
+                      style={{ animation: "blink 1s infinite" }}
+                    >
+                      {issueCount}
+                    </span>
+                  )}
+                </div>
               </PopoverTrigger>
               <PopoverContent align="end" className="w-44 p-1">
                 <button
