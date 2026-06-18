@@ -104,15 +104,15 @@ export default function Projects() {
 
         {loading ? (
           <div className="grid place-items-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-        ) : projects.length === 0 ? (
+        ) : filteredProjects.length === 0 ? (
           <div className="text-center py-20 border-2 border-dashed rounded-lg">
             <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground" />
-            <p className="mt-4 font-medium">Aucun projet pour le moment</p>
-            <p className="text-sm text-muted-foreground">{profile.role === "boss" ? "Créez votre premier projet pour commencer" : "Aucun projet n'a encore été créé"}</p>
+            <p className="mt-4 font-medium">Aucun projet pour ce filtre</p>
+            <p className="text-sm text-muted-foreground">{profile.role === "boss" ? "Créez votre premier projet ou changez le filtre" : "Aucun projet ne correspond"}</p>
           </div>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {projects.map((p) => (
+            {filteredProjects.map((p) => (
               <ProjectCard
                 key={p.id}
                 project={p}
