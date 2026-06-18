@@ -6,6 +6,10 @@ import CreateProjectDialog from "@/components/CreateProjectDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2, FolderOpen, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+
+const ENGINEER_FILTERS = ["HASSAINE ABDERRAHMANE", "BEDIOUNE ZAID"] as const;
+type EngineerFilter = "all" | (typeof ENGINEER_FILTERS)[number];
 
 type Task = { id: string; project_id: string; task_key: string; is_done: boolean; done_at: string | null; done_by: string | null; invalidated_by: string | null; invalidated_at: string | null; invalidation_reason: string | null };
 
