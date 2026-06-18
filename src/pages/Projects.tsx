@@ -20,6 +20,18 @@ export default function Projects() {
   const [profilesMap, setProfilesMap] = useState<Map<string, { full_name: string }>>(new Map());
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [engineerFilter, setEngineerFilter] = useState<EngineerFilter>(() => {
+    const saved = typeof window !== "undefined" ? localStorage.getItem("engineerFilter") : null;
+    return (saved as EngineerFilter) || "all";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("engineerFilter", engineerFilter);
+  }, [engineerFilter]);
+
+  const filteredProjects = engineerFilter === "all"
+    ? projects
+    : projects.filter((p) => (p as any).engineer_name === engineerFilter);
 
   const load = useCallback(async () => {
     const [{ data: p }, { data: t }, { data: pr }] = await Promise.all([
