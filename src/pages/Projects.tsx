@@ -31,7 +31,7 @@ export default function Projects() {
 
   const filteredProjects = engineerFilter === "all"
     ? projects
-    : projects.filter((p) => (p as any).engineer_name === engineerFilter);
+    : projects.filter((p) => p.responsable === engineerFilter);
 
   const load = useCallback(async () => {
     const [{ data: p }, { data: t }, { data: pr }] = await Promise.all([
