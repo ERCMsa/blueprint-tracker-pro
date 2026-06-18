@@ -249,56 +249,7 @@ export default function ProjectCard({
             <ImageIcon className="h-10 w-10 opacity-40" />
           </div>
         )}
-        {isBoss && (
-          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
-            <Button
-              type="button"
-              size="icon"
-              variant="secondary"
-              className="h-7 w-7"
-              disabled={uploadingImage}
-              onClick={() => coverInputRef.current?.click()}
-              title={project.cover_image_url ? "Remplacer l'image" : "Téléverser une image"}
-            >
-              {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-            </Button>
-            {project.cover_image_url && (
-              <Button
-                type="button"
-                size="icon"
-                variant="destructive"
-                className="h-7 w-7"
-                disabled={uploadingImage}
-                onClick={handleCoverRemove}
-                title="Supprimer l'image"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-            <input
-              ref={coverInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverUpload(f); }}
-            />
-          </div>
-        )}
-      </div>
-      <div className="p-5 space-y-4 flex-1">
-
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <h3
-              className="font-bold text-base sm:text-lg leading-snug break-words overflow-hidden"
-              style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
-              title={project.name}
-            >
-              {project.name}
-            </h3>
-            <div className="text-sm text-muted-foreground mt-1 truncate">{project.engineer_name}</div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="absolute top-2 right-2 flex gap-1  group-hover:opacity-100 transition">
             <Badge className={cn("border-0", typeColorClass(project.type))}>{project.type}</Badge>
             <DatesPopover project={project} overdue={overdue && !allDone} />
             <Popover open={menuOpen} onOpenChange={setMenuOpen}>
@@ -357,6 +308,52 @@ export default function ProjectCard({
               </AlertDialog>
             )}
           </div>
+        {isBoss && (
+          <div className="absolute top-2 left-2 flex gap-1 opacity-0  group-hover:opacity-100 transition">
+            <Button
+              type="button"
+              size="icon"
+              variant="secondary"
+              className="h-7 w-7"
+              disabled={uploadingImage}
+              onClick={() => coverInputRef.current?.click()}
+              title={project.cover_image_url ? "Remplacer l'image" : "Téléverser une image"}
+            >
+              {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            </Button>
+            {project.cover_image_url && (
+              <Button
+                type="button"
+                size="icon"
+                variant="destructive"
+                className="h-7 w-7"
+                disabled={uploadingImage}
+                onClick={handleCoverRemove}
+                title="Supprimer l'image"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverUpload(f); }}
+            />
+          </div>
+        )}
+      </div>
+      <div className="p-5 space-y-4 flex-1">
+        <div className="min-w-0 flex-1">
+          <h3
+            className="font-bold text-base sm:text-md leading-snug break-words overflow-hidden"
+            style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
+            title={project.name}
+          >
+            {project.name}
+          </h3>
+          <div className="text-xs text-muted-foreground mt-1 truncate">{project.engineer_name}</div>
         </div>
 
         <IssuesDialog
@@ -397,7 +394,7 @@ export default function ProjectCard({
                     onCheckedChange={() => toggleTask(t)}
                     className={cn("mt-0.5", !canCheck && "cursor-not-allowed", t.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
                   />
-                  <div className="flex-1 min-w-0">
+                  <div className="md:flex flex-row space-x-5 min-w-0">
                     <span className={cn("leading-snug", t.is_done && "line-through text-muted-foreground")}>
                       {TASK_LABELS[p.key]}
                     </span>
@@ -436,7 +433,7 @@ export default function ProjectCard({
                           onCheckedChange={() => toggleTask(st)}
                           className={cn("mt-0.5 h-3.5 w-3.5 shrink-0", !canCheck && "cursor-not-allowed", st.is_done && "data-[state=checked]:bg-success data-[state=checked]:border-success")}
                         />
-                        <div className="min-w-0">
+                        <div className="md:flex flex-row space-x-1 min-w-0">
                           <span className={cn("leading-snug", st.is_done && "line-through text-muted-foreground")}>
                             {SUBTASK_LABELS[suffix] ?? sk}
                           </span>

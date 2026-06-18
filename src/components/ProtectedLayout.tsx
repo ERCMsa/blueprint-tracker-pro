@@ -32,7 +32,7 @@ export default function ProtectedLayout({
   return (
     <div className="min-h-screen">
       <AppHeader profile={profile} />
-      <main className="container py-8">{children}</main>
+      <main className="md:container py-8">{children}</main>
     </div>
   );
 }

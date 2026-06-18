@@ -92,11 +92,11 @@ export default function Projects() {
           onValueChange={(v) => v && setEngineerFilter(v as EngineerFilter)}
           className="flex flex-wrap justify-start gap-2 bg-muted/80 p-1 rounded-xl w-fit max-w-full"
         >
-          <ToggleGroupItem value="all" className="data-[state=on]:shadow-sm rounded-md px-4 py-2 text-sm data-[state=on]:bg-[#ce161d]">
+          <ToggleGroupItem value="all" className="data-[state=on]:shadow-sm rounded-md px-4 py-2 text-sm data-[state=on]:bg-primary">
             Tous les projets
           </ToggleGroupItem>
           {ENGINEER_FILTERS.map((name) => (
-            <ToggleGroupItem key={name} value={name} className="data-[state=on]:shadow-sm rounded-md px-4 py-2 text-sm data-[state=on]:bg-[#ce161d]">
+            <ToggleGroupItem key={name} value={name} className="data-[state=on]:shadow-sm rounded-md px-4 py-2 text-sm data-[state=on]:bg-primary">
               {name}
             </ToggleGroupItem>
           ))}
