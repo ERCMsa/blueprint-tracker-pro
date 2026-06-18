@@ -67,7 +67,7 @@ export default function Projects() {
 
   return (
     <ProtectedLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 ">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Projets</h1>
@@ -85,23 +85,23 @@ export default function Projects() {
             {profile.role === "boss" && <CreateProjectDialog onCreated={load} userId={profile.id} />}
           </div>
         </div>
-
+        <div className="flex justify-center w-full">
         <ToggleGroup
           type="single"
           value={engineerFilter}
           onValueChange={(v) => v && setEngineerFilter(v as EngineerFilter)}
-          className="flex flex-wrap justify-start gap-2 bg-muted/40 p-1 rounded-lg w-fit max-w-full"
+          className="flex flex-wrap justify-start gap-2 bg-muted/80 p-1 rounded-xl w-fit max-w-full"
         >
-          <ToggleGroupItem value="all" className="data-[state=on]:bg-background data-[state=on]:shadow-sm rounded-md px-4 py-2 text-sm">
+          <ToggleGroupItem value="all" className="data-[state=on]:shadow-sm rounded-md px-4 py-2 text-sm data-[state=on]:bg-[#ce161d]">
             Tous les projets
           </ToggleGroupItem>
           {ENGINEER_FILTERS.map((name) => (
-            <ToggleGroupItem key={name} value={name} className="data-[state=on]:bg-background data-[state=on]:shadow-sm rounded-md px-4 py-2 text-sm">
+            <ToggleGroupItem key={name} value={name} className="data-[state=on]:shadow-sm rounded-md px-4 py-2 text-sm data-[state=on]:bg-[#ce161d]">
               {name}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
-
+        </div>
         {loading ? (
           <div className="grid place-items-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
         ) : filteredProjects.length === 0 ? (
