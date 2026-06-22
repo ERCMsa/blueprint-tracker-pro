@@ -165,7 +165,7 @@ export function isProjectOverdue(
   if (!dateImpression) return false;
   const deadline = parseLocalDate(dateImpression);
   deadline.setHours(0, 0, 0, 0);
-  const t = tasks.find((x) => x.task_key === "plan_created_transmettre");
+  const t = tasks.find((x) => x.task_key === "plan_created_creer");
   if (t && t.is_done && t.done_at) {
     const doneAt = new Date(t.done_at);
     doneAt.setHours(0, 0, 0, 0);
